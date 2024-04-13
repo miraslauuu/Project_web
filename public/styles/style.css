@@ -1,0 +1,267 @@
+@import url('https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital@1&family=Shippori+Antique&display=swap');
+:root{
+    --background-color:rgb(94,23,26);
+    --header-background:#E9E9E9 ;
+    --header-text:#4D4C5C;
+    --scrollbar:rgb(134,0,40);
+}
+*{
+    margin:0;
+    padding:0;
+    box-sizing: border-box;
+}
+html{
+    scroll-behavior: smooth;
+    height: 3000px;
+}
+/* ::-webkit-sccrollbar{
+    width:10px;
+}
+::-webkit-scrollbar-track{
+    background-color: var(--scrollbar);
+}
+::-webkit-scrollbar-thumb{
+    background-color: var(--background-color);
+    border-radius: 50px;
+} */
+body{
+    background:var(--background-color);
+    font-family: 'Shippori Antique',sans-serif;
+    overflow-x:hidden;
+}
+ul{
+    list-style-type:none;
+}
+a{
+    text-decoration: none;
+}
+.container{
+    max-width: 100%;
+    margin:0px 0px;
+    padding:0px 40px;
+}
+@media screen and (max-width:576px){
+    .container{
+        padding: 0 20px;
+    }
+}
+@media screen and (max-width:400px){
+    .container{
+        padding:0 10px ;
+    }
+}
+/* ===============DIVS PLAYCING HEADER================ */
+header{
+    position :fixed;
+    height:60px;
+    width:100%;
+    padding: 10px 0;
+    background:var(--header-background) ;
+    z-index: 100;
+}
+.nav{
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.nav2{
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    
+}
+.nav2 p{
+    padding-left:10px;
+}
+.logo{
+    position:relative;
+    margin-top:10px;
+}
+/* ==========Header animation========== */
+.menu{
+    display: flex;
+    align-items: center;
+    column-gap: 30px;
+    transition: all .4s;
+}
+.menu li a,.dropdown_menu li a{
+    font-size:20px;
+    font-weight: 500;
+    color:var(--header-text);
+    position: relative;
+    transition:.3s;
+}
+.menu li a.active,.menu li a:hover,.nav2 a p:hover{
+    color: var(--background-color);
+}
+.menu li a::before,.nav2 a p::before {
+    content:'';
+    position: absolute;
+    bottom: -2px;
+    width: 110%;
+    height: 2px;
+    background-color: var(--scrollbar);
+    border-radius: 50px;
+    transform:scale(0);
+    transition:.3s;
+}
+.menu li a.active::before,.menu li a:hover::before,.nav2  a p:hover::before{
+    transform: scale(1);
+}
+.nav2 a p{
+    font-size:18px;
+    font-weight: 500;
+    color:var(--header-text);
+    position: relative;
+    transition:.3s;
+}
+.nav2 a p::before {
+    width: 85%;
+    left:10px;
+}
+/* ==================================== */
+/* ========================Dropdown menu header======================= */
+.dropdown_menu{
+    position: absolute;
+    right: 2rem;
+    top: 0px;
+    width: 40%;
+    height: 0;
+    margin-right: -3%;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter:blur(40px);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all .4s;
+    display: none;
+    transition: height 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.dropdown_menu.open{
+    height:900px;
+}
+.dropdown_menu li{
+    padding: 2rem;
+    list-style-type:none;
+    display: flex;
+    align-items: normal;
+    justify-content: center;
+}
+.dropdown_menu li a{
+    color:rgb(204,230,233);
+}
+.dropdown_menu li.login_1{
+    padding-top:120%;
+    padding-bottom: 0.5rem;
+}
+.fa-xmark{
+    color:rgb(204,230,233);
+    font-size: 1.5rem;
+    cursor:pointer;
+    
+}
+@media(max-height:1025px){
+    .dropdown_menu.open{
+        height:1024px;
+    }
+    .dropdown_menu li.login_1{
+        padding-top:80%;
+        padding-bottom: 0.5rem;
+    }
+}
+@media(max-height:1181px){
+    .dropdown_menu.open{
+        height:1180px;
+    }
+    .dropdown_menu li.login_1{
+        padding-top:110%;
+        padding-bottom: 0.5rem;
+    }
+}
+@media(max-height:933px){
+    .dropdown_menu.open{
+        height:932px;
+    }
+    .dropdown_menu li.login_1{
+        padding-top:120%;
+        padding-bottom: 0.5rem;
+    }
+    
+}
+@media(max-height:742px){
+    .dropdown_menu.open{
+        height:741px;
+    }
+    .dropdown_menu li.login_1{
+        padding-top:80%;
+        padding-bottom: 0.5rem;
+    }
+    
+}
+@media(max-height:668px){
+    .dropdown_menu.open{
+        height:667px;
+    }
+    .dropdown_menu li.login_1{
+        padding-top:60%;
+        padding-bottom: 0.5rem;
+    }
+}
+.xmark_btn{
+    margin-top: 20px;
+    padding: 0px 20px 0px 20px;
+}
+.fa-user{
+    color:rgb(204,230,233);
+    font-size: 1.2rem;
+    cursor:pointer;
+}
+.dropdown_menu p{
+    padding-left:10px;
+}
+.dropdown_menu footer{
+    padding-top:0rem;
+    list-style-type:none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.copyright{
+    font-size:14px;
+    padding-top:0rem;
+    font-weight: 250;
+    color:rgb(204,230,233);
+    position: relative;
+    transition:.3s;
+}
+/* ======================Hamburger header================== */
+.nav .toggle_btn{
+    color:black;
+    font-size: 1.5rem;
+    cursor:pointer;
+    display: none;
+}
+@media(max-width:992px){
+    .nav .menu,.nav .nav2{
+        display: none;
+    }
+    .nav .toggle_btn{
+        display: block;
+    }
+    .dropdown_menu{
+        margin-left: -3%;
+        margin-right: -10%;
+        width: 70%;
+        display: block;
+    }
+}
+/* ==================================== */
+.login{
+    font-size: 20px;
+    color:var(--header-text);
+    text-decoration: none;
+    font-weight: 100;
+    display:flex;
+    align-items: center;
+}
+/* ====================Main============================ */
