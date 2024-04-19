@@ -12,22 +12,15 @@
 <header>
     <div class="header_container container">
         <div class="nav">
-            <a href="#me" class="logo">
+            <a href="/" class="logo">
                 <img src="/images/logo.png" height="20px"width="57px"alt="">
             </a>
             <ul class="menu">
-                <li>
-                    <a href="#me" class="active">Home</a>
-                </li>
-                <li>
-                    <a href="#posts">Posts</a>
-                </li>
-                <li>
-                    <a href="#plan">Plan</a>
-                </li>
-                <li>
-                    <a href="#map">Map</a>
-                </li>
+                <% links.forEach((link)=> { %>
+                    <li>
+                        <a href="<%= link.href %>" id="<%= link.id %>" class="<%= link.class%>"><%= link.text%></a>
+                    </li>
+                <% }) %>
             </ul>
             <div class="nav2">
                 <a href="#" class="login">
@@ -40,16 +33,16 @@
             <div class="dropdown_menu">
                 <div class="xmark_btn"> <i class="fa-solid fa-xmark"></i></div>
                 <li>
-                    <a href="#home" class="active">Home</a>
+                    <a href="/" class="active">Home</a>
                 </li>
                 <li>
-                    <a href="#posts">Posts</a>
+                    <a href="/posts">Posts</a>
                 </li>
                 <li>
-                    <a href="#plan">Plan</a>
+                    <a href="/plan">Plan</a>
                 </li>
                 <li>
-                    <a href="#map">Map</a>
+                    <a href="/map">Map</a>
                 </li>
                 <li class="login_1">
                     <a href="#" class="login"><i class="fa-regular fa-user"></i><p>Log in</p></a>
