@@ -56,6 +56,12 @@ app.get("/map", (req, res) => {
     });
 });
 
+app.get("/login", (req, res) => {
+    res.render("login.ejs", {
+        links: posts_map
+    });
+});
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
