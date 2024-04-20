@@ -1,3 +1,15 @@
+/*
+FILE STRUCTURE :
+	A - Creating the database for out website
+	B - Creating symmetric encryption (ensuring security of database)
+	C - Drop Constarint (may help with changing the db structure)
+	D - Drop procedures
+	E - Drop User define table
+	F - Drop and create functions
+	G - Drop and create tables
+	H - creating procedures for user log in 
+*/
+
 -- Creating the database for out website
 
 IF DB_ID('SVO_DB_PROJECT_FINAL_VERSION') IS NULL
