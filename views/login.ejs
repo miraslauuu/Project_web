@@ -1,5 +1,28 @@
 <%- include("partials/header.ejs") %>
-<section id="me">
+<section id="me" style="display: flex; justify-content: center; align-items: center; height: 100vh;background-color:rgba(63, 29, 31, 1); background: linear-gradient(
+    90deg,
+    var(--background-color),  
+    var(--background-color),  
+    #51292A, 
+    #7A5D5E, 
+    #887374  
+  );
+  
+  ">
     
+    <div class="login-box" style="padding: 20px; border: 1px solid #ccc; background:#D9D9D9; text-align: center;">
+        <h2>Log in into your account</h2>
+        <!-- Formularz logowania -->
+        <form>
+            <input type="text" placeholder="" required>
+            <br>
+            <input type="password" placeholder="" required>
+            <br>
+            <button type="submit">Log in</button>
+        </form>
+        <h5>Don't have an account? Register</h5>
+    </div>
+
 </section>
-<%- include("partials/footer.ejs") %>
+
+//background: linear-gradient(90deg,var(--background-color),var(--background-color), #432123,#9C797A,#AD9395
