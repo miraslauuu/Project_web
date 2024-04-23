@@ -1,6 +1,17 @@
 import express from "express";
 import bodyParser from "body-parser";
+import sql from "mssql";
 
+const dbConfig = {
+    server: "LAPTOP-BJSNAIAH", // Replace with your server name
+    database: "SVO_DB_PROJECT_FINAL_VERSION", // Replace with your database name
+    user: "anhelina", // Replace with your username
+    password: "Hfge!0406", // Replace with your password
+    options: {
+        encrypt: false, // Use this if you're on Windows Azure
+        enableArithAbort: true
+    }
+};
 
 const app = express();
 const port = 3000;
@@ -60,6 +71,32 @@ app.get("/login", (req, res) => {
     res.render("login.ejs", {
         links: posts_map
     });
+});
+
+
+
+//here handling login procedure
+app.post("/login", async (req, res) => {
+    const { uname, psw } = req.body;
+    try {
+        await sql.connect(dbConfig);
+        const result = await sql.query`EXEC UserLogInValidation ${uname}, ${psw}`;
+        sql.close();
+
+        // Handling based on stored procedure response
+        const loginResult = result.returnValue;
+        if (loginResult === 0) {
+            res.send("Login Successful");
+        } else if (loginResult === 1) {
+            res.send("User does not exist");
+        } else if (loginResult === 2) {
+            res.send("Incorrect password");
+        } else {
+            res.send("Unexpected error occurred");
+        }
+    } catch (err) {
+        res.status(500).send("Failed to connect to the database: " + err.message);
+    }
 });
 
 app.listen(port, () => {
