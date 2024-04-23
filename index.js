@@ -3,12 +3,12 @@ import bodyParser from "body-parser";
 import sql from "mssql";
 
 const dbConfig = {
-    server: "LAPTOP-BJSNAIAH", // Replace with your server name
-    database: "SVO_DB_PROJECT_FINAL_VERSION", // Replace with your database name
-    user: "anhelina", // Replace with your username
-    password: "Hfge!0406", // Replace with your password
+    server: "LAPTOP-BJSNAIAH", 
+    database: "SVO_DB_PROJECT_FINAL_VERSION", 
+    user: "anhelina",
+    password: "Hfge!0406", 
     options: {
-        encrypt: false, // Use this if you're on Windows Azure
+        encrypt: false, 
         enableArithAbort: true
     }
 };
@@ -80,10 +80,10 @@ app.post("/login", async (req, res) => {
     const { uname, psw } = req.body;
     try {
         await sql.connect(dbConfig);
-        const result = await sql.query`EXEC UserLogInValidation ${uname}, ${psw}`;
+        const result = await sql.query`EXEC UserLogInValidation ${uname}, ${psw}`;  //trzeba zrobić execute tej procedurze, ona wszystko zrobi
         sql.close();
 
-        // Handling based on stored procedure response
+        // procedura zwróci 0 kiedy sukces, inne przypadki opisane niżej
         const loginResult = result.returnValue;
         if (loginResult === 0) {
             res.send("Login Successful");
