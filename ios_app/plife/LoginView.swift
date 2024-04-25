@@ -6,8 +6,6 @@
 //
 
 import SwiftUI
-import SQLClient
-
 
 extension Color {
     init(hex: String) {

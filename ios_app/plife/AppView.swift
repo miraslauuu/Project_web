@@ -8,6 +8,7 @@
 
 import SwiftUI
 import MapKit
+import Combine
 
 
 import SwiftUI
@@ -51,28 +52,28 @@ struct MainView: View {
     @Binding var selectedTab: String
 
     var body: some View {
-        VStack {
-            switch selectedTab {
-            case "Posts":
-                Text("Showing Posts")
-            case "Messages":
-                Text("Showing Messages")
-            case "Schedule":
-                Text("Showing Schedule")
-            case "Map":
-                MapView() 
-                   
-                Spacer()
-            default:
-                Text("Welcome")
+        ZStack {
+            Color(hex: "#5E171B").edgesIgnoringSafeArea(.all) // Make sure the background color fills the entire screen
+
+            VStack {
+                switch selectedTab {
+                case "Posts":
+                    Text("Showing Posts")
+                case "Messages":
+                    Text("Showing Messages")
+                case "Schedule":
+                    Text("Showing Schedule")
+                case "Map":
+                    MapView()
+                    SearchBar()
+                default:
+                    Text("Welcome")
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(hex: "#5E171B"))
-        .edgesIgnoringSafeArea(.all)
     }
 }
-
 
 
 struct NavBar: View {
@@ -121,8 +122,9 @@ struct MapView: View {
 
     var body: some View {
         Map(coordinateRegion: $region)
-            .frame(width: 400, height: 400)
             .cornerRadius(15)
+            .edgesIgnoringSafeArea(.all)
+
             .overlay(
                 RoundedRectangle(cornerRadius: 15)
                     .stroke(LinearGradient(gradient: Gradient(colors: [.clear, .black.opacity(1)]), startPoint: .top, endPoint: .bottom), lineWidth: 10)
@@ -134,7 +136,48 @@ struct MapView: View {
                             )
                     )
             )
-            .edgesIgnoringSafeArea(.all)
     }
 }
 
+struct SearchBar: View {
+    @State private var searchText = ""
+    @ObservedObject private var keyboardResponder = KeyboardResponder()
+
+    var body: some View {
+         VStack {
+             TextField("Search...", text: $searchText)
+                 .textFieldStyle(RoundedBorderTextFieldStyle())
+                 .padding()
+                 .offset(y: -keyboardResponder.keyboardHeight)
+                         .animation(.easeOut, value: keyboardResponder.keyboardHeight)
+                         .onDisappear {
+                             // To hide the keyboard when this view disappears
+                             UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                         }
+         }
+         .background(Color(hex: "#5E171B"))
+      
+     }
+
+}
+
+
+
+class KeyboardResponder: ObservableObject {
+    @Published var keyboardHeight: CGFloat = 0
+    private var cancellables: Set<AnyCancellable> = []
+
+    init() {
+        let keyboardWillShow = NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)
+            .map { $0.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect ?? .zero }
+            .map { $0.height }
+
+        let keyboardWillHide = NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)
+            .map { _ in CGFloat(0) }
+
+        Publishers.Merge(keyboardWillShow, keyboardWillHide)
+            .subscribe(on: RunLoop.main)
+            .assign(to: \.keyboardHeight, on: self)
+            .store(in: &cancellables)
+    }
+}
