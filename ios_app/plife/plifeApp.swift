@@ -11,7 +11,7 @@ import SwiftUI
 struct plifeApp: App {
     init() {
         
-        UITabBar.appearance().backgroundColor = UIColor(Color(hex: "#5E171B"))
+        UITabBar.appearance().backgroundColor = UIColor(Color(hex:"#430C0F"))
         UISearchBar.appearance().backgroundColor = UIColor(Color(hex: "#5E171B"))
 
     }
