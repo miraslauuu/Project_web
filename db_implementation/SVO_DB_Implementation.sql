@@ -270,7 +270,8 @@ CREATE PROCEDURE UserRegistration
 	@UserUniversityID int,
 	@UserFirstName nvarchar(30),
 	@UserLastName nvarchar(30),
-	@UserPassword nvarchar(255)
+	@UserPassword nvarchar(255),
+	@Result int OUTPUT
 	WITH ENCRYPTION
 AS 
 BEGIN
@@ -278,7 +279,7 @@ BEGIN
 	EXEC @UserExistsError = CheckIfUserExists @UserUniversityID;
 	IF @UserExistsError = 1
 		BEGIN
-			RETURN 1; --user already exists in db
+			SET @Result = 1; --user already exists in db
 		END
 
 	--hash password
@@ -291,41 +292,51 @@ BEGIN
 	--check is insertion was successful
 	IF @@ROWCOUNT > 0
 	BEGIN
-		RETURN 0; --ok
+		SET @Result = 0; --ok
 	END
 	ELSE 
 	BEGIN
-		RETURN 2; --failed
+		SET @Result = 2; --failed
 	END
 
 END
 GO
+
+drop procedure UserLogInValidation;
+
+go
 
 CREATE PROCEDURE UserLogInValidation
-	@UserUniversityID int,
-	@UserPassword nvarchar(255)
-	WITH ENCRYPTION
+    @UserUniversityID int,
+    @UserPassword nvarchar(255),
+    @Result int OUTPUT
 AS
 BEGIN
-	DECLARE @UserDontExistsError int;
-	EXEC @UserDontExistsError = CheckIfUserExists @UserUniversityID;
-	IF @UserDontExistsError = 0
-	BEGIN
-		RETURN 1; -- user do not exists
-	END
-	DECLARE @UserHashedPassword binary(64);
-	EXEC @UserHashedPassword = HashUserPassword @UserPassword;
-	IF EXISTS(
-		SELECT * FROM Users WHERE UniversityID = @UserUniversityID AND Password = @UserHashedPassword
-	)
-	BEGIN
-		RETURN 0; -- log in success
-	END
-	ELSE
-	BEGIN
-		RETURN 2; --incorrect password
-	END
-
+    DECLARE @UserDontExistsError int;
+    EXEC @UserDontExistsError = CheckIfUserExists @UserUniversityID;
+    IF @UserDontExistsError = 0
+    BEGIN
+        SET @Result = 1; -- user does not exist
+        RETURN;
+    END
+    DECLARE @UserHashedPassword binary(64);
+    EXEC @UserHashedPassword = HashUserPassword @UserPassword;
+    IF EXISTS(
+        SELECT * FROM Users WHERE UniversityID = @UserUniversityID AND Password = @UserHashedPassword
+    )
+    BEGIN
+        SET @Result = 0; -- log in success
+    END
+    ELSE
+    BEGIN
+        SET @Result = 2; -- incorrect password
+    END
 END
 
+
 GO
+
+/*DECLARE @RES INT;  -- Declaration without initialization
+EXEC @RES = UserLogInValidation 123, 'haslo';
+
+PRINT CAST(@RES AS VARCHAR(10))*/

@@ -76,15 +76,19 @@ app.get("/login", (req, res) => {
 
 
 //here handling login procedure
+//const sql = require('mssql');
+
 app.post("/login", async (req, res) => {
     const { uname, psw } = req.body;
     try {
-        await sql.connect(dbConfig);
-        const result = await sql.query`EXEC UserLogInValidation ${uname}, ${psw}`;  //trzeba zrobić execute tej procedurze, ona wszystko zrobi
-        sql.close();
+        let pool = await sql.connect(dbConfig);
+        let result = await pool.request()
+                        .input('UserUniversityID', sql.Int, uname)
+                        .input('UserPassword', sql.NVarChar(255), psw)
+                        .output('Result', sql.Int)
+                        .execute('UserLogInValidation');
 
-        // procedura zwróci 0 kiedy sukces, inne przypadki opisane niżej
-        const loginResult = result.returnValue;
+        const loginResult = result.output.Result;
         if (loginResult === 0) {
             res.send("Login Successful");
         } else if (loginResult === 1) {
@@ -92,12 +96,16 @@ app.post("/login", async (req, res) => {
         } else if (loginResult === 2) {
             res.send("Incorrect password");
         } else {
-            res.send("Unexpected error occurred");
+            res.send("Unexpected result");
         }
+
     } catch (err) {
         res.status(500).send("Failed to connect to the database: " + err.message);
+    } finally {
+        sql.close();
     }
 });
+
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
