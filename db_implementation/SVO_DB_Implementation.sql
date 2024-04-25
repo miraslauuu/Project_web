@@ -326,7 +326,7 @@ BEGIN
         RETURN;
     END
     DECLARE @UserHashedPassword binary(64);
-    EXEC @UserHashedPassword = HashUserPassword @UserPassword;
+    EXEC HashUserPassword @UserPassword, @UserHashedPassword OUTPUT;
     IF EXISTS(
         SELECT * FROM Users WHERE UniversityID = @UserUniversityID AND Password = @UserHashedPassword
     )
