@@ -73,6 +73,12 @@ app.get("/login", (req, res) => {
     });
 });
 
+app.get("/registration_form", (req, res) => {
+    res.render("registration_form.ejs", {
+        links: posts_map
+    });
+});
+
 
 
 //here handling login procedure
@@ -103,6 +109,41 @@ app.post("/login", async (req, res) => {
         res.status(500).send("Failed to connect to the database: " + err.message);
     } finally {
         sql.close();
+    }
+});
+
+//registration proces handling
+app.post("/register", async (req, res) => {
+    const { UserUniversityID, UserFirstName, UserLastName, UserPassword } = req.body;
+    let pool;
+
+    try {
+        pool = await sql.connect(dbConfig); // Connect to the database
+        let result = await pool.request()
+            .input("UserUniversityID", sql.Int, UserUniversityID)
+            .input("UserFirstName", sql.NVarChar(30), UserFirstName)
+            .input("UserLastName", sql.NVarChar(30), UserLastName)
+            .input("UserPassword", sql.NVarChar(255), UserPassword)
+            .output("Result", sql.Int)
+            .execute("UserRegistration"); // Execute the stored procedure
+        
+        const registrationResult = result.output.Result;
+        if (registrationResult === 0) {
+            res.send("Registration successful!");
+        } else if (registrationResult === 1) {
+            res.send("User already exists");
+        } else if (registrationResult === 2) {
+            res.send("Registration failed");
+        } else {
+            res.send("Unexpected error occurred");
+        }
+
+    } catch (err) {
+        res.status(500).send("Failed to register user: " + err.message);
+    } finally {
+        if (pool) {
+            pool.close(); // Close the database connection
+        }
     }
 });
 

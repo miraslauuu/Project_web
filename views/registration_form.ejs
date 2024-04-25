@@ -1,0 +1,19 @@
+<%- include("partials/header.ejs") %>
+<section id="me">
+<br><br><br><br><br>
+    <h1>User Registration</h1>
+    <form action="/register" method="post">
+        <label for="UserUniversityID">University ID:</label>
+        <input type="number" name="UserUniversityID" required><br>
+
+        <label for="UserFirstName">First Name:</label>
+        <input type="text" name="UserFirstName" required><br>
+
+        <label for="UserLastName">Last Name:</label>
+        <input type="text" name="UserLastName" required><br>
+
+        <label for="UserPassword">Password:</label>
+        <input type="password" name="UserPassword" required><br>
+
+        <button type="submit">Register</button>
+    </form>

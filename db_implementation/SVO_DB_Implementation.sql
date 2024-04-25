@@ -228,20 +228,16 @@ CREATE TABLE Messages(
 -- Creating procedures for user log in
 /* *********************************************************************************************************************************************** */
 GO
+drop procedure HashUserPassword
+go
 CREATE PROCEDURE HashUserPassword
-	@Password NVARCHAR(255)
+	@Password NVARCHAR(255),
+	@Hashed_password BINARY(64) OUTPUT
 	WITH ENCRYPTION
 AS
 BEGIN
 	SET NOCOUNT ON;
-	DECLARE @Salt UNIQUEIDENTIFIER;
-	DECLARE @Hashed_password BINARY(64);
-	SET @Salt = NEWID(); -- Generowanie losowego soli
-	-- Haszowanie has³a wraz z sol¹ za pomoc¹ SHA-256
-    SET @Hashed_password = HASHBYTES('SHA2_256', @Password + CAST(@Salt AS NVARCHAR(36)));
-	-- Zwrócenie zahaszowanego has³a
-    SELECT @Hashed_password AS Hashed_password;
-	RETURN @Hashed_password
+    SET @Hashed_password = HASHBYTES('SHA2_256', @Password);
 END
 GO
 
@@ -265,6 +261,12 @@ BEGIN
 END
 
 GO
+select * from Users
+go
+delete from users 
+where users.UserID = 1
+drop procedure UserRegistration
+go
 
 CREATE PROCEDURE UserRegistration
 	@UserUniversityID int,
@@ -283,28 +285,32 @@ BEGIN
 		END
 
 	--hash password
-	DECLARE @UserHashedPassword binary(64);
-	EXEC @UserHashedPassword = HashUserPassword @UserPassword;
+	DECLARE @UserHashedPassword BINARY(64);
+	EXEC HashUserPassword @UserPassword, @UserHashedPassword OUTPUT;
 	--insert values into table
 	INSERT INTO Users (UniversityID, FirstName, LastName, Password)
-        VALUES (@UserUniversityID, @UserFirstName, @UserLastName, @UserHashedPassword);
+    VALUES (@UserUniversityID, @UserFirstName, @UserLastName, @UserHashedPassword);
 	
 	--check is insertion was successful
-	IF @@ROWCOUNT > 0
+	/*IF @@ROWCOUNT > 0
 	BEGIN
 		SET @Result = 0; --ok
 	END
 	ELSE 
-	BEGIN
-		SET @Result = 2; --failed
-	END
+	BEGIN*/
+		SET @Result = 0; --failed
+	--END
 
 END
 GO
 
 drop procedure UserLogInValidation;
 
+select * from users
+
 go
+
+
 
 CREATE PROCEDURE UserLogInValidation
     @UserUniversityID int,
