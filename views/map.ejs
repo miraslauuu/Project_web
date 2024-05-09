@@ -1,5 +1,55 @@
 <%- include("partials/header.ejs") %>
-<section id="me">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+<style>
+    #me {
+        display: flex;
+        justify-content: center; 
+        align-items: center;
+        flex-direction: column;
+        height: 100vh; 
+    }
     
+    iframe {
+        width: 800px;
+        height: 500px;
+    }
+    .search-bar {
+        margin-bottom: 20px; 
+        width: 50%;
+        position: relative; 
+        font-family: 'Shippori Antique', sans-serif;
+    }
+
+    .search-input {
+        width: 100%; 
+        padding: 10px 40px 10px 10px; 
+        border: 1px solid #ccc; 
+        border-radius: 25px; 
+        font-size: 16px;
+    }
+
+    .fa-search { 
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #ccc;
+    }
+</style>
+<section id="me">
+</br>
+    <div class="search-bar">
+        <input type="text" class="search-input" placeholder="Search...">
+        <i class="fa fa-search"></i> <!-- Icon added here -->
+    </div>
+</br>
+    <iframe
+        style="border:0"
+        loading="lazy"
+        allowfullscreen
+        referrerpolicy="no-referrer-when-downgrade"
+        src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAhGmzFMkJD0MZxlfbsTalDFMmLS1Nh7v4&q=PlaceName">
+        </iframe>
 </section>
+
 <%- include("partials/footer.ejs") %>
