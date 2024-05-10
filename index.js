@@ -67,22 +67,11 @@ app.get("/map", (req, res) => {
     });
 });
 
-app.get("/login", (req, res) => {
-    res.render("login.ejs", {
-        links: posts_map
-    });
-});
-
-app.get("/registration_form", (req, res) => {
-    res.render("registration_form.ejs", {
-        links: posts_map
-    });
-});
 
 
 
-//here handling login procedure
-//const sql = require('mssql');
+// here handling login procedure
+// const sql = require('mssql');
 
 app.post("/login", async (req, res) => {
     const { uname, psw } = req.body;
@@ -112,7 +101,7 @@ app.post("/login", async (req, res) => {
     }
 });
 
-//registration proces handling
+// registration proces handling
 app.post("/register", async (req, res) => {
     const { UserUniversityID, UserFirstName, UserLastName, UserPassword } = req.body;
     let pool;

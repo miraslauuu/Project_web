@@ -23,7 +23,7 @@
                 <% }) %>
             </ul>
             <div class="nav2">
-                <a href="/login" class="login">
+                <a class="login">
                     <img src="/images/userImage.png" height="28px"width="28px" alt=""><p>Log in</p>
                 </a>
             </div>
@@ -45,7 +45,7 @@
                     <a href="/map">Map</a>
                 </li>
                 <li class="login_1">
-                    <a href="/login" class="login"><i class="fa-regular fa-user"></i><p>Log in</p></a>
+                    <a class="login_dropdown"><i class="fa-regular fa-user"></i><p>Log in</p></a>
                 </li>
                 <footer>
                     <p class="copyright">Copyright © <%=new Date().getFullYear()%> </p>
@@ -54,4 +54,62 @@
         </div>
     </div>
 </header>
-<main >
+<section class="login_section">
+    <div class="form_container">
+        <i class="fa-solid fa-xmark form_close"></i>
+        <div class="form login_form">
+            <form method="post" action= "http://localhost:3000/login">
+                <h2>Login</h2>
+                <div class="input-box first">
+                    <span class="icon"><i class="fa-solid fa-envelope uname"></i></span>
+                    <input type="text" name="uname" required id="uname">
+                    <label for="uname">Username</label>
+                </div>
+                <div class="input-box">
+                    <span class="icon"><i class="fa-solid fa-lock"></i></span>
+                    <input type="password" name="psw" required id="psw">
+                    <label for="psw">Password</label>
+                </div>
+                <div class="remember-forgot">
+                    <label><input type="checkbox"> Remember me</label>
+                    <a href="#">Forgot Password?</a>
+                </div>
+                <button type="submit">Login</button>
+                <div class="register-link">
+                    <p>Don't have an account? <a href="#" class="register-l">Register</a></p>
+                </div>
+            </form>
+        </div>
+        <div class="form register_form">
+            <form action="/register" method="post">
+            <h2>Registration</h2>
+            <div class="input-box first">
+                <span class="icon"><i class="fa-solid fa-lock"></i></span>
+                <input type="number" name="UserUniversityID" required id="UserUniversityID">
+                <label  for="UserUniversityID">University ID</label>
+            </div>
+            <div class="input-box">
+                <span class="icon"><i class="fa-solid fa-lock"></i></span>
+                <input type="text" name="UserFirstName" required id="UserFirstName">
+                <label for="UserFirstName">First Name</label>
+            </div>
+            <div class="input-box">
+                <span class="icon"><i class="fa-solid fa-lock"></i></span>
+                <input type="text" name="UserLastName" required id="UserLastName">
+                <label for="UserLastName">Last Name</label>
+            </div>
+            <div class="input-box">
+                <span class="icon"><i class="fa-solid fa-lock"></i></span>
+                <input type="password" name="UserPassword" required id="UserPassword">
+                <label for="UserPassword">Password</label>
+            </div>
+            <button type="submit">Register</button>
+            <div class="login-link">
+                <p>Already have account? <a href="#" class="login-l">Login</a></p>
+            </div>
+        </form>
+        </div>
+    </div>
+</section>
+
+<main>

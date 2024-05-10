@@ -57,7 +57,7 @@ header{
     width:100%;
     padding: 10px 0;
     background:var(--header-background) ;
-    z-index: 100;
+    z-index: 102;
 }
 .nav{
     display:flex;
@@ -217,6 +217,14 @@ header{
     display:flex;
     align-items: center;
 }
+.login_dropdown{
+    font-size: 20px;
+    color:var(--header-text);
+    text-decoration: none;
+    font-weight: 100;
+    display:flex;
+    align-items: center;
+}
 /* ====================Main============================ */
 #p1{
     font-weight: 800;
@@ -279,6 +287,7 @@ section#authors{
     display: flex;
     align-items: start;
     justify-content: center;
+    /* z-index: 129; */
 }
 .title-box{
     text-align: center;
@@ -442,6 +451,202 @@ small{
 .footer-links a:hover {
     color: darkred;
 }
+/* =============================Log in menu========================= */
+
+.login_section{
+    position:absolute;
+    height: 100vh;
+    width: 100%;
+}
+/* .login_section .open{
+    position: absolute;
+    height: 100vh;
+    width: 100%;
+} */
+
+.form_container{
+    position: absolute;
+    min-width: 320px;
+    top: 18vh;
+    right: 38%;
+    width: 400px;
+    height: 420px;
+    /* transform: translate(-50%,-50%);
+    z-index: 101; */
+    background:transparent;
+    padding: 15px;
+    border: 2px solid rgba(255,255,255,.5);
+    border-radius: 20px;
+    box-shadow: rgba(0,0,0,0.1);
+    backdrop-filter:blur(20px);
+    overflow: hidden;
+    transform: scale(0);
+    transition: transform .5s ease,height .2s ease;
+}
+.form_container.active-popup{
+    transform: scale(1);
+}
+.form_container.active{
+    height: 540px;
+    top: 15vh;
+}
+.form_container .form.login_form{
+    transition: transform .18s ease;
+    transform: translateX(0);
+}
+.form_container.active .form.login_form{
+    transition: none;
+    transform: translateX(-400px);
+}
+.form_close{
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    z-index: 109;
+    color:var(--header-background);
+    font-size: 25px;
+    opacity: 0.7;
+    cursor: pointer;
+}
+.form_container h2{
+    font-size:2em;
+    margin-top: 10px;
+    color: var(--header-background);
+    text-align: center;
+}
+.login_form{
+    display: flex;
+  justify-content: center; 
+  align-items: center; 
+}
+.input-box{
+    position: relative;
+    width: 310px;
+    margin: 30px 0;
+    border-bottom: 2px solid #fff;
+
+}
+.first{
+    margin-top: 15px;
+}
+.input-box label{
+    position:absolute;
+    top: 50%;
+    left: 5px;
+    transform: translateY(-50%);
+    font-size: 1em;
+    color: #fff;
+    pointer-events: none;
+    transition: .5s;
+}
+.input-box input:focus~label,
+.input-box input:valid~label {
+  top: -5px;
+}
+.input-box input{
+    width: 100%;
+    height: 50px;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 1em;
+    color: #fff;
+    padding: 0 35px 0 5px;
+}
+.input-box .icon{
+    position: absolute;
+    right: 8px;
+    color: #fff;
+    font-size: 1.2em;
+    line-height: 57px;
+}
+.remember-forgot{
+    margin: -15px 0 15px;
+    font-size: .9em;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+}
+.remember-forgot label input{
+    margin-left: 3px;
+}
+.remember-forgot a{
+    color: #fff;
+    text-decoration: none;
+}
+.remember-forgot a:hover{
+    text-decoration: underline;
+}
+.login_form button{
+    width: 100%;
+    height: 40px;
+    background:#fff;
+    border: none;
+    outline: none;
+    border-radius: 40px;
+    cursor: pointer;
+    font-size: 1em;
+    color:#000;
+    font-weight: 500;
+    margin-top: 10px;
+}
+.register-link{
+    font-size:.9em;
+    color:#fff;
+    text-align: center;
+    margin: 25px 0 10px;
+}
+.register-link p a{
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+.register-link p a:hover{
+    text-decoration: underline;
+}
+/* =============================Register menu========================= */
+.register_form{
+    display:flex;
+  justify-content: center; 
+  align-items: center; 
+}
+.register_form button{
+    width: 100%;
+    height: 40px;
+    background:#fff;
+    border: none;
+    outline: none;
+    border-radius: 40px;
+    cursor: pointer;
+    font-size: 1em;
+    color:#000;
+    font-weight: 500;
+    margin-top: 10px;
+}
+.login-link{
+    font-size:.9em;
+    color:#fff;
+    text-align: center;
+    margin: 25px 0 10px;
+}
+.login-link p a{
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+.login-link p a:hover{
+    text-decoration: underline;
+}
+.form_container .form.register_form{
+    position: absolute;
+    transition: none;
+    transform: translateY(-360px) translateX(400px);
+}
+.form_container.active .form.register_form{
+    transition: transform .18s ease;
+    transform:  translateY(-360px) translateX(25px);
+}
+
 @media(max-width: 880px) {
     body{
         width:46vh;
@@ -532,4 +737,13 @@ small{
     .footer-distributed .footer-right .contact{
        display: none;
     }
+    .form_container{
+        top: 18vh; 
+        right: 2%;
+    }
+   
+    .input-box{
+        width: 290px;
+    }
 }
+
