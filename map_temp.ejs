@@ -1,11 +1,6 @@
 <%- include("partials/header.ejs") %>
-
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 <style>
-    header {
-        z-index: 9999; /* High z-index value */
-    }
-
     #me {
         display: flex;
         justify-content: center;
@@ -53,7 +48,6 @@
         width: 100%;
         background-color: white;
         z-index: 1000;
-     
     }
 
     .suggestions li {
@@ -63,13 +57,11 @@
 
     .suggestions li:hover {
         background-color: #f0f0f0;
-        
     }
 
     /* Custom scrollbar styles for webkit-based browsers */
     .suggestions::-webkit-scrollbar {
         width: 8px;
-     
     }
 
     .suggestions::-webkit-scrollbar-track {
@@ -95,36 +87,40 @@
         const searchInput = document.getElementById("searchInput");
         const suggestionsList = document.getElementById("suggestionsList");
 
-        const suggestions = ["apple", "pear", "banana", "grape", "orange", "strawberry", "melon"];
+        // Fetch coordinates from the backend
+        fetch('http://localhost:3000/coordinates')
+            .then(response => response.json())
+            .then(data => {
+                const suggestions = data.map(coordinate => coordinate.name);
 
-        searchInput.addEventListener("input", function() {
-            const input = searchInput.value.toLowerCase();
-            suggestionsList.innerHTML = '';
+                searchInput.addEventListener("input", function() {
+                    const input = searchInput.value.toLowerCase();
+                    suggestionsList.innerHTML = '';
 
-            if (input) {
-                const filteredSuggestions = suggestions.filter(suggestion => suggestion.toLowerCase().includes(input));
-                filteredSuggestions.forEach(suggestion => {
-                    const suggestionItem = document.createElement("li");
-                    suggestionItem.textContent = suggestion;
-                    suggestionItem.addEventListener("click", function() {
-                        searchInput.value = suggestion;
-                        suggestionsList.innerHTML = '';
-                    });
-                    suggestionsList.appendChild(suggestionItem);
+                    if (input) {
+                        const filteredSuggestions = suggestions.filter(suggestion => suggestion.toLowerCase().includes(input));
+                        filteredSuggestions.forEach(suggestion => {
+                            const suggestionItem = document.createElement("li");
+                            suggestionItem.textContent = suggestion;
+                            suggestionItem.addEventListener("click", function() {
+                                searchInput.value = suggestion;
+                                suggestionsList.innerHTML = '';
+                            });
+                            suggestionsList.appendChild(suggestionItem);
+                        });
+                        suggestionsList.style.display = 'block';
+                    } else {
+                        suggestionsList.style.display = 'none';
+                    }
                 });
-                suggestionsList.style.display = 'block';
-            } else {
-                suggestionsList.style.display = 'none';
-            }
-        });
 
-        document.addEventListener("click", function(event) {
-            if (!searchInput.contains(event.target) && !suggestionsList.contains(event.target)) {
-                suggestionsList.style.display = 'none';
-            }
-        });
+                document.addEventListener("click", function(event) {
+                    if (!searchInput.contains(event.target) && !suggestionsList.contains(event.target)) {
+                        suggestionsList.style.display = 'none';
+                    }
+                });
+            });
     });
-    
 </script>
 
 <section id="me">
@@ -140,11 +136,6 @@
         referrerpolicy="no-referrer-when-downgrade"
         src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAhGmzFMkJD0MZxlfbsTalDFMmLS1Nh7v4&q=51.747044,19.455953">
     </iframe>
-    
 </section>
 
-
-
 <%- include("partials/footer.ejs") %>
-
-
