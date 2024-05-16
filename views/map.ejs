@@ -3,54 +3,136 @@
 <style>
     #me {
         display: flex;
-        justify-content: center; 
+        justify-content: center;
         align-items: center;
         flex-direction: column;
-        height: 100vh; 
+        height: 100vh;
     }
-    
+
     iframe {
         width: 800px;
         height: 500px;
     }
+
     .search-bar {
-        margin-bottom: 20px; 
+        margin-bottom: 20px;
         width: 50%;
-        position: relative; 
+        position: relative;
         font-family: 'Shippori Antique', sans-serif;
     }
 
     .search-input {
-        width: 100%; 
-        padding: 10px 40px 10px 10px; 
-        border: 1px solid #ccc; 
-        border-radius: 25px; 
+        width: 100%;
+        padding: 10px 40px 10px 10px;
+        border: 1px solid #ccc;
+        border-radius: 25px;
         font-size: 16px;
     }
 
-    .fa-search { 
+    .fa-search {
         position: absolute;
         right: 10px;
         top: 50%;
         transform: translateY(-50%);
         color: #ccc;
     }
+
+    .suggestions {
+        border: 1px solid #ccc;
+        border-top: none;
+        border-radius: 25px;
+        max-height: 150px;
+        overflow-y: auto;
+        display: none;
+        position: absolute;
+        width: 100%;
+        background-color: white;
+        z-index: 1000;
+     
+    }
+
+    .suggestions li {
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    .suggestions li:hover {
+        background-color: #f0f0f0;
+    }
+
+    /* Custom scrollbar styles for webkit-based browsers */
+    .suggestions::-webkit-scrollbar {
+        width: 8px;
+     
+    }
+
+    .suggestions::-webkit-scrollbar-track {
+        background: #f0f0f0;
+        border-radius: 25px;
+    }
+
+    .suggestions::-webkit-scrollbar-thumb {
+        background-color: #ccc;
+        border-radius: 25px;
+        border: 2px solid #f0f0f0;
+    }
+
+    /* Custom scrollbar styles for Firefox */
+    .suggestions {
+        scrollbar-width: thin;
+        scrollbar-color: #ccc #f0f0f0;
+    }
 </style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const searchInput = document.getElementById("searchInput");
+        const suggestionsList = document.getElementById("suggestionsList");
+
+        const suggestions = ["apple", "pear", "banana", "grape", "orange", "strawberry", "melon"];
+
+        searchInput.addEventListener("input", function() {
+            const input = searchInput.value.toLowerCase();
+            suggestionsList.innerHTML = '';
+
+            if (input) {
+                const filteredSuggestions = suggestions.filter(suggestion => suggestion.toLowerCase().includes(input));
+                filteredSuggestions.forEach(suggestion => {
+                    const suggestionItem = document.createElement("li");
+                    suggestionItem.textContent = suggestion;
+                    suggestionItem.addEventListener("click", function() {
+                        searchInput.value = suggestion;
+                        suggestionsList.innerHTML = '';
+                    });
+                    suggestionsList.appendChild(suggestionItem);
+                });
+                suggestionsList.style.display = 'block';
+            } else {
+                suggestionsList.style.display = 'none';
+            }
+        });
+
+        document.addEventListener("click", function(event) {
+            if (!searchInput.contains(event.target) && !suggestionsList.contains(event.target)) {
+                suggestionsList.style.display = 'none';
+            }
+        });
+    });
+</script>
+
 <section id="me">
-</br>
     <div class="search-bar">
-        <input type="text" class="search-input" placeholder="Search...">
-        <i class="fa fa-search"></i> <!-- Icon added here -->
+        <input type="text" class="search-input" placeholder="Search..." id="searchInput">
+        <i class="fa fa-search"></i>
+        <ul class="suggestions" id="suggestionsList"></ul>
     </div>
-</br>
     <iframe
-        style="border:1px"
+        style="border:0"
         loading="lazy"
         allowfullscreen
         referrerpolicy="no-referrer-when-downgrade"
-        src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAhGmzFMkJD0MZxlfbsTalDFMmLS1Nh7v4&q=51.747045,19.455757">
-        
-        </iframe>
+        src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAhGmzFMkJD0MZxlfbsTalDFMmLS1Nh7v4&q=52.2296756,21.0122287">
+    </iframe>
 </section>
 
 <%- include("partials/footer.ejs") %>
