@@ -40,8 +40,8 @@ EXPIRY_DATE = '2026-01-01';
 
 -- Create symmetric key to encrypt data
 
--- tutaj b�dzie b��d jak spr�bujecie odkodowa� i nie macie 
--- odpowiedniego permission, w takim razie pisa� do autora kodu
+-- tutaj bEdzie błąd jak spróbujecie odkodować i nie macie 
+-- odpowiedniego permission, w takim razie pisać do autora kodu
 
 
 CREATE SYMMETRIC KEY SVOManagementSymmetricKey
@@ -121,7 +121,7 @@ BEGIN
 	PostID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
 	UserID INT  NOT NULL, FOREIGN KEY (UserID) REFERENCES Users(UserID),
 	Title VARCHAR(50),
-	Content VARCHAR(1000),  --dozwolona d�ugo�� postu
+	Content VARCHAR(1000),  --dozwolona długość postu
 	Date DATETIMEOFFSET
 )
 END
@@ -136,7 +136,7 @@ BEGIN
 	CREATE TABLE Calendars(
 	CalendarID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
 	UserID INT NOT NULL UNIQUE, FOREIGN KEY (UserID) REFERENCES Users(UserID),
-	Type BIT        -- tutaj 0 = na mies�c, 1 = na tydzie�
+	Type BIT        -- tutaj 0 = na mies�c, 1 = na tydzień
 )
 END
 
@@ -185,8 +185,8 @@ IF NOT EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Messages'
 BEGIN 
 	CREATE TABLE Messages(
 	MessageID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
-	SentByUserID INT NOT NULL, FOREIGN KEY (SentByUserID) REFERENCES Users(UserID),  --id tego co wys�al wiadomo��
-	SentToUserID INT NOT NULL, FOREIGN KEY (SentToUserID) REFERENCES Users(UserID),  --id tego komu wys�ali 
+	SentByUserID INT NOT NULL, FOREIGN KEY (SentByUserID) REFERENCES Users(UserID),  --id tego co wysłal wiadomość
+	SentToUserID INT NOT NULL, FOREIGN KEY (SentToUserID) REFERENCES Users(UserID),  --id tego komu wysłali 
 	Date DATETIMEOFFSET,
 	Content VARCHAR(100)
 )
@@ -201,6 +201,39 @@ END
 GO
 --drop procedure HashUserPassword
 go
+
+-- procedure to check if user input is secure
+CREATE OR ALTER PROCEDURE CheckInput
+	@Input VARCHAR(255),
+	@Result INT OUTPUT
+AS
+BEGIN
+
+SET @Result = 0;
+
+    -- Check for common SQL injection patterns
+    IF @Input LIKE '%--%' OR      -- Inline comment
+       @Input LIKE '%/*%' OR      -- Block comment start
+       @Input LIKE '%*/%' OR      -- Block comment end
+       @Input LIKE '%''%' OR      -- Single quote
+       @Input LIKE '%"%' OR       -- Double quote
+       @Input LIKE '%xp_%' OR     -- Extended procedure
+       @Input LIKE '%sp_%' OR     -- System stored procedure
+       @Input LIKE '%select%' OR  -- SQL keywords (basic)
+       @Input LIKE '%insert%' OR
+       @Input LIKE '%update%' OR
+       @Input LIKE '%delete%' OR
+       @Input LIKE '%drop%' OR
+       @Input LIKE '%alter%' OR
+       @Input LIKE '%exec%' OR
+       @Input LIKE '%union%'      -- SQL keywords (advanced)
+    BEGIN
+        SET @Result = 1;
+    END
+END
+ 
+
+GO
 CREATE OR ALTER PROCEDURE HashUserPassword
 	@Password NVARCHAR(255),
 	@Hashed_password BINARY(64) OUTPUT
@@ -210,6 +243,7 @@ BEGIN
 	SET NOCOUNT ON;
     SET @Hashed_password = HASHBYTES('SHA2_256', @Password);
 END
+
 GO
 
 CREATE OR ALTER PROCEDURE CheckIfUserExists   -- if user exists returns 1, else 0
@@ -232,12 +266,7 @@ BEGIN
 END
 
 GO
-/*Select * from Users
-go
-delete from users 
-where users.UserID = 1
-drop procedure UserRegistration*/
-go
+
 
 CREATE OR ALTER PROCEDURE UserRegistration
 	@UserUniversityID int,
@@ -245,10 +274,23 @@ CREATE OR ALTER PROCEDURE UserRegistration
 	@UserLastName nvarchar(30),
 	@UserPassword nvarchar(255),
 	@Result int OUTPUT
-	WITH ENCRYPTION
 AS 
 BEGIN
-	DECLARE @UserExistsError int;
+	DECLARE @SafeInput INT
+	EXEC CheckInput @UserFirstName, @SafeInput OUTPUT
+	IF @SafeInput = 1
+	BEGIN
+		SET @Result = 2
+		RETURN
+	END
+	EXEC CheckInput @UserLastName, @SafeInput OUTPUT
+	IF @SafeInput = 1
+	BEGIN
+		SET @Result = 2
+		RETURN
+	END
+
+	DECLARE @UserExistsError INT;
 	EXEC @UserExistsError = CheckIfUserExists @UserUniversityID;
 	IF @UserExistsError = 1
 		BEGIN
@@ -269,24 +311,17 @@ BEGIN
 	END
 	ELSE 
 	BEGIN
-		SET @Result = 0; --failed
+		SET @Result = 2; --failed
 	END
 
 END
 GO
 
---drop procedure UserLogInValidation;
-
---select * from users
-
-go
-
-
-
 CREATE OR ALTER PROCEDURE UserLogInValidation
     @UserUniversityID int,
     @UserPassword nvarchar(255),
     @Result int OUTPUT
+	WITH ENCRYPTION
 AS
 BEGIN
     DECLARE @UserDontExistsError int;
@@ -319,6 +354,16 @@ CREATE OR ALTER PROCEDURE GetCoordinates
     @Longitude FLOAT OUTPUT
 AS
 BEGIN
+	
+	DECLARE @SafeInput INT
+	EXEC CheckInput @Name, @SafeInput OUTPUT
+	IF @SafeInput = 1
+	BEGIN
+		SET @Latitude = 0
+		SET @Longitude = 0
+		RETURN
+	END
+
     IF EXISTS (SELECT Latitude, Longitude FROM Coordinates WHERE Name = @Name)
     BEGIN
         PRINT 'Coordinates found'
@@ -351,10 +396,3 @@ PRINT @LAN
 PRINT @LON*/
 
 GO 
-
---CREATE OR ALTER PROCEDURE CheckInput
-
-/*DECLARE @RES INT;  -- Declaration without initialization
-EXEC @RES = UserLogInValidation 123, 'haslo';
-
-PRINT CAST(@RES AS VARCHAR(10))*/
