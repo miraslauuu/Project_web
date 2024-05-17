@@ -137,50 +137,29 @@ app.post("/register", async (req, res) => {
 });
 
 
-/*
-MAPY
-
-DODAC DO SQL SERWER: 
-
-CREATE TABLE Coordinates (
-    Id INT PRIMARY KEY IDENTITY(1,1),
-    Name NVARCHAR(255),
-    Latitude FLOAT,
-    Longitude FLOAT
-);
-
-app.post("/coordinates", async (req, res) => {
-    const { name, latitude, longitude } = req.body;
-    try {
-        let pool = await sql.connect(dbConfig);
-        let result = await pool.request()
-            .input('Name', sql.NVarChar(255), name)
-            .input('Latitude', sql.Float, latitude)
-            .input('Longitude', sql.Float, longitude)
-            .query('INSERT INTO Coordinates (Name, Latitude, Longitude) VALUES (@Name, @Latitude, @Longitude)');
-        res.status(201).send("Coordinate added successfully");
-    } catch (err) {
-        res.status(500).send("Failed to add coordinate: " + err.message);
-    } finally {
-        sql.close();
-    }
-});
-
-// Get Coordinates Route
-app.get("/coordinates", async (req, res) => {
-    try {
-        let pool = await sql.connect(dbConfig);
-        let result = await pool.request().query('SELECT * FROM Coordinates');
-        res.status(200).json(result.recordset);
-    } catch (err) {
-        res.status(500).send("Failed to retrieve coordinates: " + err.message);
-    } finally {
-        sql.close();
-    }
-});
-
-
-*/
+app.get("/coordinates", async (req, res) => { 
+    const { name } = req.query; 
+    try { 
+        let pool = await sql.connect(dbConfig); 
+        let result = await pool.request() 
+            .input('Name', sql.NVarChar(255), name) 
+            .output('Latitude', sql.Float) 
+            .output('Longitude', sql.Float) 
+            .execute('GetCoordinates'); 
+         
+        const latitude = result.output.Latitude; 
+        const longitude = result.output.Longitude; 
+         
+        console.log(`Latitude: ${latitude}, Longitude: ${longitude}`); // Debugging 
+ 
+        res.status(200).json({ Latitude: latitude, Longitude: longitude }); 
+    } catch (err) { 
+        console.error("Error fetching coordinates:", err); 
+        res.status(500).json({ error: "Failed to retrieve coordinates" }); 
+    } finally { 
+        sql.close(); 
+    } 
+}); 
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
