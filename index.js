@@ -161,6 +161,19 @@ app.get("/coordinates", async (req, res) => {
     } 
 }); 
 
+app.get("/building-names", async (req, res) => {
+    try {
+        let pool = await sql.connect(dbConfig);
+        let result = await pool.request().query('SELECT Name FROM Coordinates');
+        res.status(200).json(result.recordset);
+    } catch (err) {
+        console.error("Error fetching building names:", err);
+        res.status(500).json({ error: "Failed to retrieve building names" });
+    } finally {
+        sql.close();
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });

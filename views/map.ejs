@@ -3,7 +3,7 @@
 <style>
     #me {
         display: flex;
-        justify-content: center;
+        justify-content: center; 
         align-items: center;
         flex-direction: column;
         height: 100vh; 
@@ -12,6 +12,7 @@
     iframe {
         width: 800px;
         height: 500px;
+        z-index: 9999;
     }
     .search-bar {
         margin-bottom: 20px; 
@@ -43,8 +44,9 @@
 <section id="me">
     <br>
     <div class="search-bar">
-        <input type="text" class="search-input" placeholder="Search..." id="searchInput">
+        <input type="text" class="search-input" placeholder="Search..." id="searchInput" list="buildingList">
         <i class="fa fa-search"></i>
+        <datalist id="buildingList"></datalist>
     </div>
     <br>
     <iframe
@@ -63,6 +65,21 @@
         const searchInput = document.getElementById("searchInput");
         const mapIframe = document.getElementById("mapIframe");
         const coordinatesDiv = document.getElementById("coordinates");
+        const buildingList = document.getElementById("buildingList");
+
+        // Fetch building names and populate datalist
+        fetch('/building-names')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(building => {
+                    const option = document.createElement("option");
+                    option.value = building.Name;
+                    buildingList.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error("Error fetching building names:", error);
+            });
 
         searchInput.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
