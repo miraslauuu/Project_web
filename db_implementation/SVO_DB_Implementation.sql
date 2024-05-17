@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 FILE STRUCTURE :
 	A - Creating the database for out website
 	B - Creating symmetric encryption (ensuring security of database)
@@ -28,9 +28,9 @@ GO
 -- Creating symmetric encryption (ensuring security of database)
 /* *********************************************************************************************************************************************** */
 
-/*
+
 USE SVO_DB_PROJECT_FINAL_VERSION
-CREATE MASTER KEY 
+/*CREATE MASTER KEY 
 ENCRYPTION BY PASSWORD = '7#kD9G@f2$Pq&Z!';
 
 -- Create certificate to protect symmetric key
@@ -40,8 +40,8 @@ EXPIRY_DATE = '2026-01-01';
 
 -- Create symmetric key to encrypt data
 
--- tutaj bêdzie b³¹d jak spróbujecie odkodowaæ i nie macie 
--- odpowiedniego permission, w takim razie pisaæ do autora kodu
+-- tutaj bï¿½dzie bï¿½ï¿½d jak sprï¿½bujecie odkodowaï¿½ i nie macie 
+-- odpowiedniego permission, w takim razie pisaï¿½ do autora kodu
 
 
 CREATE SYMMETRIC KEY SVOManagementSymmetricKey
@@ -97,130 +97,101 @@ GO
 
 -- Table Users
 
-IF EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Users') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
+IF NOT EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Users') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
 BEGIN 
-
-	DROP TABLE dbo.Users
-END
-
-CREATE TABLE Users(
+	CREATE TABLE Users(
 	UserID INT PRIMARY KEY IDENTITY (1,1) NOT NULL,
 	Password BINARY(64) NOT NULL, 
-	FirstName NVARCHAR(30) NOT NULL,
-	LastName NVARCHAR(30) NOT NULL,
+	FirstName VARCHAR(30) NOT NULL,
+	LastName VARCHAR(30) NOT NULL,
 	UniversityID INT NOT NULL UNIQUE,
 	UniversityIDExpired INT DEFAULT 0
 )
+END
+
 
 GO
 
 -- Table Posts
 
 
-IF EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Posts') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
+IF NOT EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Posts') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
 BEGIN 
-
-	DROP TABLE dbo.Posts
-END
-
-CREATE TABLE Posts(
+	CREATE TABLE Posts(
 	PostID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
-	UserID INT  NOT NULL /*CONSTRAINT UserID FOREIGN KEY (UserID)*/ REFERENCES Users(UserID),
-	Title NVARCHAR(50),
-	Content NVARCHAR(1000),  --dozwolona d³ugoœæ postu
+	UserID INT  NOT NULL, FOREIGN KEY (UserID) REFERENCES Users(UserID),
+	Title VARCHAR(50),
+	Content VARCHAR(1000),  --dozwolona dï¿½ugoï¿½ï¿½ postu
 	Date DATETIMEOFFSET
 )
+END
+
 
 GO 
 
 -- Table Calendars
 
-IF EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Calendars') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
+IF NOT EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Calendars') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
 BEGIN 
-
-	DROP TABLE dbo.Calendars
+	CREATE TABLE Calendars(
+	CalendarID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
+	UserID INT NOT NULL UNIQUE, FOREIGN KEY (UserID) REFERENCES Users(UserID),
+	Type BIT        -- tutaj 0 = na miesï¿½c, 1 = na tydzieï¿½
+)
 END
 
-CREATE TABLE Calendars(
-	CalendarID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
-	UserID INT NOT NULL UNIQUE/*, CONSTRAINT UserID FOREIGN KEY (UserID)*/ REFERENCES Users(UserID),
-	Type BIT        -- tutaj 0 = na mies¹c, 1 = na tydzieñ
-)
 
 
 GO
 
 -- Table Events
 
-IF EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Events') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
+IF NOT EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Events') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
 BEGIN 
-
-	DROP TABLE dbo.Events
-END
-
-CREATE TABLE Events(
+	CREATE TABLE Events(
 	EventID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
-	UserID INT NOT NULL/*, CONSTRAINT UserID FOREIGN KEY (UserID)*/ REFERENCES Users(UserID),
-	CalendarID int NOT NULL/*, FOREIGN KEY (CalendarID)*/ REFERENCES Calendars(CalendarID),
+	UserID INT NOT NULL, FOREIGN KEY (UserID) REFERENCES Users(UserID),
+	CalendarID int NOT NULL, FOREIGN KEY (CalendarID) REFERENCES Calendars(CalendarID),
 	Date DATETIMEOFFSET NOT NULL,
 	Type BIT NOT NULL,     -- zajecia Type = 0, rozrywka Type = 1
-	Title NVARCHAR(30) NOT NULL,
-	Description NVARCHAR(100)
+	Title VARCHAR(30) NOT NULL,
+	Description VARCHAR(100)
 )
-
-GO 
-
--- Table Maps
-
-IF EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Maps') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
-BEGIN 
-
-	DROP TABLE dbo.Maps
 END
-
-CREATE TABLE Maps(
-	MapID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,  -- tutaj nie jestem pewna czy trzeba klucz, 
-	                                                 -- byæ mo¿e przyda siê do widoków
-)
 
 
 GO
 
--- Table Buildings
-
-IF EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Buildings') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
+IF NOT EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Coordinates') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
 BEGIN 
-
-	DROP TABLE dbo.Buildings
-END
-
-CREATE TABLE Buildings(
-	BuildingID int PRIMARY KEY IDENTITY (1, 1) NOT NULL,
-	MapID INT NOT NULL/*, CONSTRAINT MapID FOREIGN KEY (MapID)*/ REFERENCES Maps(MapID),
-	City NVARCHAR(30) DEFAULT '£ódŸ',
-	Street NVARCHAR(30),
-	BuildingNum INT,
-	PostCode NVARCHAR(10)
+	CREATE TABLE Coordinates(
+	ID int PRIMARY KEY IDENTITY(1, 1) NOT NULL,
+    Name NVARCHAR(255),
+    Latitude FLOAT,
+    Longitude FLOAT
 )
+
+END
 
 
 GO
+
+INSERT INTO Coordinates( Name, Latitude, Longitude) VALUES('Library', 51.745641, 19.454742)
+SELECT * FROM Coordinates
 
 -- Table Messages
 
-IF EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Buildings') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
+IF NOT EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Messages') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
 BEGIN 
-
-	DROP TABLE dbo.Buildings
+	CREATE TABLE Messages(
+	MessageID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
+	SentByUserID INT NOT NULL, FOREIGN KEY (SentByUserID) REFERENCES Users(UserID),  --id tego co wysï¿½al wiadomoï¿½ï¿½
+	SentToUserID INT NOT NULL, FOREIGN KEY (SentToUserID) REFERENCES Users(UserID),  --id tego komu wysï¿½ali 
+	Date DATETIMEOFFSET,
+	Content VARCHAR(100)
+)
 END
 
-CREATE TABLE Messages(
-	MessageID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
-	SentByUserID INT NOT NULL/*, CONSTRAINT SentByUserID FOREIGN KEY (SentByUserID)*/ REFERENCES Users(UserID),  --id tego co wys³al wiadomoœæ
-	SentToUserID INT NOT NULL/*, CONSTRAINT SentToUserID FOREIGN KEY (SentToUserID)*/ REFERENCES Users(UserID),  --id tego komu wys³ali 
-	Date DATETIMEOFFSET,
-	Content NVARCHAR(100)
-)
 
 
 /* *********************************************************************************************************************************************** */
@@ -228,9 +199,9 @@ CREATE TABLE Messages(
 -- Creating procedures for user log in
 /* *********************************************************************************************************************************************** */
 GO
-drop procedure HashUserPassword
+--drop procedure HashUserPassword
 go
-CREATE PROCEDURE HashUserPassword
+CREATE OR ALTER PROCEDURE HashUserPassword
 	@Password NVARCHAR(255),
 	@Hashed_password BINARY(64) OUTPUT
 	WITH ENCRYPTION
@@ -241,7 +212,7 @@ BEGIN
 END
 GO
 
-CREATE PROCEDURE CheckIfUserExists   -- if user exists returns 1, else 0
+CREATE OR ALTER PROCEDURE CheckIfUserExists   -- if user exists returns 1, else 0
 	@UserUniversityID int
 	WITH ENCRYPTION
 AS
@@ -261,14 +232,14 @@ BEGIN
 END
 
 GO
-select * from Users
+/*Select * from Users
 go
 delete from users 
 where users.UserID = 1
-drop procedure UserRegistration
+drop procedure UserRegistration*/
 go
 
-CREATE PROCEDURE UserRegistration
+CREATE OR ALTER PROCEDURE UserRegistration
 	@UserUniversityID int,
 	@UserFirstName nvarchar(30),
 	@UserLastName nvarchar(30),
@@ -292,27 +263,27 @@ BEGIN
     VALUES (@UserUniversityID, @UserFirstName, @UserLastName, @UserHashedPassword);
 	
 	--check is insertion was successful
-	/*IF @@ROWCOUNT > 0
+	IF @@ROWCOUNT > 0
 	BEGIN
 		SET @Result = 0; --ok
 	END
 	ELSE 
-	BEGIN*/
+	BEGIN
 		SET @Result = 0; --failed
-	--END
+	END
 
 END
 GO
 
-drop procedure UserLogInValidation;
+--drop procedure UserLogInValidation;
 
-select * from users
+--select * from users
 
 go
 
 
 
-CREATE PROCEDURE UserLogInValidation
+CREATE OR ALTER PROCEDURE UserLogInValidation
     @UserUniversityID int,
     @UserPassword nvarchar(255),
     @Result int OUTPUT
@@ -341,6 +312,47 @@ END
 
 
 GO
+
+CREATE OR ALTER PROCEDURE GetCoordinates
+    @Name NVARCHAR(255),
+    @Latitude FLOAT OUTPUT,
+    @Longitude FLOAT OUTPUT
+AS
+BEGIN
+    IF EXISTS (SELECT Latitude, Longitude FROM Coordinates WHERE Name = @Name)
+    BEGIN
+        PRINT 'Coordinates found'
+        SELECT @Latitude = Latitude, @Longitude = Longitude FROM Coordinates WHERE Name = @Name
+        PRINT 'Latitude: ' + CAST(@Latitude AS NVARCHAR(50))
+        PRINT 'Longitude: ' + CAST(@Longitude AS NVARCHAR(50))
+    END
+    ELSE
+    BEGIN
+        PRINT 'Coordinates not found'
+        SET @Latitude = 0
+        SET @Longitude = 0
+    END
+END
+
+
+
+
+/*DECLARE @Lat FLOAT, @Lng FLOAT;
+EXEC GetCoordinates @Name='Library', @Latitude=@Lat OUTPUT, @Longitude=@Lng OUTPUT;
+PRINT 'Latitude: ' + CAST(@Lat AS NVARCHAR(50))
+PRINT 'Longitude: ' + CAST(@Lng AS NVARCHAR(50))
+
+
+SELECT * FROM Coordinates
+
+DECLARE @LAN AS FLOAT = 1, @LON AS FLOAT = 1
+EXEC GetCoordinates 'Library', @LAN, @LON
+PRINT @LAN 
+PRINT @LON*/
+
+GO 
+
+--CREATE OR ALTER PROCEDURE CheckInput
 
 /*DECLARE @RES INT;  -- Declaration without initialization
 EXEC @RES = UserLogInValidation 123, 'haslo';
