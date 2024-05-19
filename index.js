@@ -1,5 +1,6 @@
 import express from "express";
 import bodyParser from "body-parser";
+import methodOverride from "method-override";
 import sql from "mssql";
 
 const dbConfig = {
@@ -18,7 +19,7 @@ const port = 3000;
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(methodOverride('_method'));
 const posts_index = [
     {href: '/', id:'home_id',class:'active',text:'Home'},
     {href: '/posts', id:'posts_id',class:'disable',text:'Posts' },
@@ -48,12 +49,45 @@ app.get("/", (req, res) => {
         links: posts_index
     });
 });
-
+let posts=[];
 app.get("/posts", (req, res) => {
     res.render("posts.ejs", {
-        links: posts_posts
+        links: posts_posts,
+        posts:posts
     });
 });
+app.post("/submit",(req,res)=>{//new objects will be on top
+    const text=req.body["text"];
+    posts.unshift({ text });
+    res.redirect("/posts");
+  });
+  app.patch('/comment/:id', (req, res) => {
+    const { id } = req.params;
+    const { updatedComment } = req.body;
+    posts[id].text = updatedComment; 
+    res.redirect("/posts");
+  });
+  app.delete('/comment/:id', (req, res) => {
+    const { id } = req.params;
+    posts.splice(id, 1);
+    res.redirect("/posts");
+  });
+// app.get("/posts", async (req, res) => {
+//     try {
+//         let pool = await sql.connect(dbConfig);
+//         let result = await pool.request().query('SELECT PostID, UserID, Title, Content, Date FROM Posts ORDER BY Date DESC');
+//         const posts = result.recordset;
+//         res.render("posts.ejs", {
+//             links: posts_posts,
+//             posts: posts
+//         });
+//     } catch (err) {
+//         res.status(500).send("Failed to fetch posts: " + err.message);
+//     } finally {
+//         sql.close();
+//     }
+// });
+
 
 app.get("/plan", (req, res) => {
     res.render("plan.ejs", {
@@ -66,8 +100,55 @@ app.get("/map", (req, res) => {
         links: posts_map
     });
 });
+// app.post("/submit", async (req, res) => {
+//     const { title, text } = req.body;
+//     const userID = 1; // assuming a logged-in user with ID 1 for simplicity
+//     try {
+//         let pool = await sql.connect(dbConfig);
+//         await pool.request()
+//             .input('UserID', sql.Int, userID)
+//             .input('Title', sql.NVarChar(50), title)
+//             .input('Content', sql.NVarChar(1000), text)
+//             .query('INSERT INTO Posts (UserID, Title, Content) VALUES (@UserID, @Title, @Content)');
+//         res.redirect("/posts");
+//     } catch (err) {
+//         res.status(500).send("Failed to submit post: " + err.message);
+//     } finally {
+//         sql.close();
+//     }
+// });
 
+// app.patch('/comment/:id', async (req, res) => {
+//     const { id } = req.params;
+//     const { updatedComment } = req.body;
+//     try {
+//         let pool = await sql.connect(dbConfig);
+//         await pool.request()
+//             .input('PostID', sql.Int, id)
+//             .input('Content', sql.NVarChar(1000), updatedComment)
+//             .query('UPDATE Posts SET Content = @Content WHERE PostID = @PostID');
+//         res.redirect("/posts");
+//     } catch (err) {
+//         res.status(500).send("Failed to update post: " + err.message);
+//     } finally {
+//         sql.close();
+//     }
+// });
 
+// app.delete('/comment/:id', async (req, res) => {
+//     const { id } = req.params;
+//     try {
+//         let pool = await sql.connect(dbConfig);
+//         await pool.request()
+//             .input('PostID', sql.Int, id)
+//             .query('DELETE FROM Posts WHERE PostID = @PostID');
+//         res.redirect("/posts");
+//     } catch (err) {
+//         res.status(500).send("Failed to delete post: " + err.message);
+//     } finally {
+//         sql.close();
+//     }
+// });
 
 
 // here handling login procedure

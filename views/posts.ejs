@@ -1,5 +1,83 @@
 <%- include("partials/header.ejs") %>
-<section id="me">
-    
+<link rel="stylesheet" href="/styles/posts.css">
+<div class="posts-header">
+  <div class="circle"></div>
+  <h1>Posts</h1>
+</div>
+<section id="posts">
+  <div class="post-container">
+        <i class="fa-regular fa-circle-user"></i>
+        <div class="new_post_click">
+          <input id="postTextarea" placeholder="New post"></input>
+        </div>
+  </div>
+  <div id="postModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>New Post</h2>
+        <form id="postForm" action="/submit" method="POST" class="flex-container">
+            <input type="text" id="postTitle" name="text" placeholder="Title" required>
+            <textarea id="postContent" name="content" class="feedback-input" placeholder="Write your post" required></textarea>
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+  </div> 
+  <div class="comment">
+    <% posts.forEach((post,index) => { %>
+        <div class="row">
+     
+            <p class="com">My profile </p>
+        </div>
+        <div class="row-2">
+
+            <span class="row-2 mar-a"><%= post.text %></span>
+          
+        <div class="row-3">
+          <form action="/comment/<%= index %>?_method=DELETE" method="post"  >
+          <input type="hidden" name="_method" value="DELETE">
+          <button type="submit" class="b">Delete</button>
+         </form>
+        </div>
+         </div>
+          <form action="/comment/<%= index %>?_method=PATCH" method="post">
+          <input type="hidden" name="_method" value="PATCH">
+          <input type="text" name="updatedComment" placeholder="Update comment">
+          <button type="submit" class="b">Update</button>
+        </form>
+    <% }); %>
+  </div>
 </section>
+<!-- <section class="login_section" >
+  <div class="form_container">
+      <i class="fa-solid fa-xmark form_close"></i>
+      <div class="form login_form">
+          <form method="post" action= "http://localhost:3000/login">
+              <h2>Create a post</h2>
+              <div class="input-box first">
+                  <span class="icon"><i class="fa-solid fa-envelope uname"></i></span>
+                  <input type="text" name="uname" required id="uname">
+                  <label for="uname">Title</label>
+              </div>
+              <div class="input-box">
+                  <span class="icon"><i class="fa-solid fa-lock"></i></span>
+                  <input type="password" name="psw" required id="psw">
+                  <label for="psw">Write post</label>
+              </div>
+              <button type="button">Cancel</button>
+              <button type="submit">Post</button>
+          </form>
+      </div>
+  </div>
+</section> -->
+<div id="postModal" class="modal">
+  <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>New Post</h2>
+      <form id="postForm" action="/submit" method="POST" class="flex-container">
+          <input type="text" id="postTitle" name="title" placeholder="Title" required>
+          <textarea id="postContent" name="content" class="feedback-input" placeholder="Write your post" required></textarea>
+          <input type="submit" value="Submit">
+      </form>
+  </div>
+</div> 
 <%- include("partials/footer.ejs") %>

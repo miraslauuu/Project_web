@@ -43,3 +43,38 @@ iconClose.addEventListener('click',()=>{
  xmark_button.onclick=function(){
      drop_down_menu.classList.remove("open");
  };
+ //---------------------------Posts-------------------------------------
+ // Get modal element
+const modal = document.getElementById("postModal");
+const textarea = document.getElementById("postTextarea");
+const closeBtn = document.querySelector(".close");
+const postForm = document.getElementById("postForm");
+
+// Open modal when textarea is clicked
+textarea.addEventListener("click", () => {
+    modal.style.display = "block";
+});
+
+// Close modal when the close button is clicked
+closeBtn.addEventListener("click", () => {
+    modal.style.display = "none";
+});
+
+// Close modal when clicking outside of modal content
+window.addEventListener("click", (event) => {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+});
+
+// Optional: Handle form submission for client-side validation or other actions before submission
+postForm.addEventListener("submit", (event) => {
+    // Example: Validate form before submitting
+    const title = document.getElementById("postTitle").value;
+    const content = document.getElementById("postContent").value;
+    
+    if (!title || !content) {
+        event.preventDefault(); // Prevent form submission
+        alert("Please fill in both the title and content.");
+    }
+});
