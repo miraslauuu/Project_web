@@ -12,8 +12,10 @@
     iframe {
         width: 800px;
         height: 500px;
-        z-index: 9999;
+        z-index: 9997;
+        border-radius: 25px;
     }
+    
     .search-bar {
         margin-bottom: 20px; 
         width: 50%;
@@ -40,13 +42,52 @@
     #coordinates {
         margin-top: 20px;
     }
+
+    .dropdown {
+        position: absolute;
+        width: 100%;
+        max-height: 150px;
+        overflow-y: auto;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        display: none;
+        z-index: 9998;
+        margin-top: 5px;
+    }
+
+    .dropdown li {
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    .dropdown li:hover {
+        background-color: #f0f0f0;
+    }
+
+    /* Custom scrollbar styles */
+    .dropdown::-webkit-scrollbar {
+        width: 12px;
+    }
+
+    .dropdown::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+
+    .dropdown::-webkit-scrollbar-thumb {
+        background: #888;
+    }
+
+    .dropdown::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
 </style>
 <section id="me">
     <br>
     <div class="search-bar">
-        <input type="text" class="search-input" placeholder="Search..." id="searchInput" list="buildingList">
+        <input type="text" class="search-input" placeholder="Search..." id="searchInput">
         <i class="fa fa-search"></i>
-        <datalist id="buildingList"></datalist>
+        <ul class="dropdown" id="dropdown"></ul>
     </div>
     <br>
     <iframe
@@ -55,7 +96,7 @@
         loading="lazy"
         allowfullscreen
         referrerpolicy="no-referrer-when-downgrade"
-        src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAhGmzFMkJD0MZxlfbsTalDFMmLS1Nh7v4&q=51.747045,19.455757">
+        src="">
     </iframe>
     <div id="coordinates"></div>
 </section>
@@ -63,57 +104,119 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const searchInput = document.getElementById("searchInput");
+        const dropdown = document.getElementById("dropdown");
         const mapIframe = document.getElementById("mapIframe");
         const coordinatesDiv = document.getElementById("coordinates");
-        const buildingList = document.getElementById("buildingList");
+        const defaultLocation = { lat: 51.747045, lon: 19.455757 }; // Default location (can be changed)
+        let userPosition = null;
 
-        // Fetch building names and populate datalist
+        // Fetch building names and populate the custom dropdown
         fetch('/building-names')
             .then(response => response.json())
             .then(data => {
                 data.forEach(building => {
-                    const option = document.createElement("option");
-                    option.value = building.Name;
-                    buildingList.appendChild(option);
+                    const li = document.createElement("li");
+                    li.textContent = building.Name;
+                    li.addEventListener("click", function() {
+                        searchInput.value = building.Name;
+                        dropdown.style.display = 'none';
+                        fetchCoordinates(building.Name);
+                    });
+                    dropdown.appendChild(li);
                 });
             })
             .catch(error => {
                 console.error("Error fetching building names:", error);
             });
 
+        searchInput.addEventListener("focus", function() {
+            const items = dropdown.getElementsByTagName("li");
+            Array.from(items).forEach(item => {
+                item.style.display = "block";
+            });
+            dropdown.style.display = 'block';
+        });
+
+        searchInput.addEventListener("input", function() {
+            const filter = searchInput.value.toLowerCase();
+            const items = dropdown.getElementsByTagName("li");
+            let matchFound = false;
+            Array.from(items).forEach(item => {
+                if (item.textContent.toLowerCase().indexOf(filter) > -1) {
+                    item.style.display = "block";
+                    matchFound = true;
+                } else {
+                    item.style.display = "none";
+                }
+            });
+            dropdown.style.display = matchFound ? 'block' : 'none';
+        });
+
         searchInput.addEventListener("keypress", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
-                const buildingName = searchInput.value;
-                fetch(`/coordinates?name=${encodeURIComponent(buildingName)}`)
-                    .then(function (response) {
-                        return response.text(); // Get the raw response text
-                    })
-                    .then(function (text) {
-                        console.log('Response text from server:', text); // Log the raw text
-                        const data = JSON.parse(text); // Parse the raw text into JSON
-                        console.log('Parsed JSON data:', data); // Log the parsed JSON data
-
-                        if (data.Latitude !== 0 && data.Longitude !== 0) {
-                            const { Latitude, Longitude } = data;
-                            coordinatesDiv.textContent = `Latitude: ${Latitude}, Longitude: ${Longitude}`;
-                            updateMap(Latitude, Longitude);
-                        } else {
-                            coordinatesDiv.textContent = "Building not found";
-                        }
-                    })
-                    .catch(function (rejectionReason) {
-                        console.error('Error parsing JSON from response:', rejectionReason); // Log the error
-                        coordinatesDiv.textContent = `Error fetching coordinates: ${rejectionReason}`;
-                    });
+                fetchCoordinates(searchInput.value);
+                dropdown.style.display = 'none';
             }
         });
 
-        function updateMap(latitude, longitude) {
-            const key = 'AIzaSyAhGmzFMkJD0MZxlfbsTalDFMmLS1Nh7v4';
-            const url = `https://www.google.com/maps/embed/v1/place?key=${key}&q=${latitude},${longitude}`;
-            mapIframe.src = url;
+        document.addEventListener("click", function(event) {
+            if (!event.target.closest(".search-bar")) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        function fetchCoordinates(buildingName) {
+            fetch(`/coordinates?name=${encodeURIComponent(buildingName)}`)
+                .then(response => response.text())
+                .then(text => {
+                    const data = JSON.parse(text);
+                    if (data.Latitude !== 0 && data.Longitude !== 0) {
+                        const { Latitude, Longitude } = data;
+                        updateMap(Latitude, Longitude);
+                    } else {
+                        coordinatesDiv.textContent = "Building not found";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching coordinates:', error);
+                    coordinatesDiv.textContent = `Error fetching coordinates: ${error}`;
+                });
         }
+
+        function updateMap(latitude, longitude) {
+            if (userPosition) {
+                const { lat, lon } = userPosition;
+                const key = 'AIzaSyAhGmzFMkJD0MZxlfbsTalDFMmLS1Nh7v4';
+                const url = `https://www.google.com/maps/embed/v1/directions?key=${key}&origin=${lat},${lon}&destination=${latitude},${longitude}&mode=walking&zoom=15`;
+                mapIframe.src = url;
+            } else {
+                mapIframe.src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyAhGmzFMkJD0MZxlfbsTalDFMmLS1Nh7v4&q=${latitude},${longitude}&zoom=15`;
+            }
+        }
+
+        function initializeMap() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        userPosition = {
+                            lat: position.coords.latitude,
+                            lon: position.coords.longitude
+                        };
+                        updateMap(userPosition.lat, userPosition.lon);
+                    },
+                    error => {
+                        console.error('Error getting user location:', error);
+                        updateMap(defaultLocation.lat, defaultLocation.lon);
+                    }
+                );
+            } else {
+                console.error('Geolocation is not supported by this browser.');
+                updateMap(defaultLocation.lat, defaultLocation.lon);
+            }
+        }
+
+        initializeMap();
     });
 </script>
 
