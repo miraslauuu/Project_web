@@ -1,223 +1,223 @@
 <%- include("partials/header.ejs") %>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
 <style>
-    #me {
-        display: flex;
-        justify-content: center; 
-        align-items: center;
-        flex-direction: column;
-        height: 100vh; 
-    }
-    
-    iframe {
-        width: 800px;
-        height: 500px;
-        z-index: 9997;
-        border-radius: 25px;
-    }
-    
-    .search-bar {
-        margin-bottom: 20px; 
-        width: 50%;
-        position: relative; 
-        font-family: 'Shippori Antique', sans-serif;
-    }
+   #me {
+       display: flex;
+       justify-content: center; 
+       align-items: center;
+       flex-direction: column;
+       height: 100vh; 
+   }
+ 
+   iframe {
+       width: 800px;
+       height: 500px;
+       z-index: 99;
+       border-radius: 25px;
+   }
+   
+   .search-bar {
+       margin-bottom: 20px; 
+       width: 50%;
+       position: relative; 
+       font-family: 'Shippori Antique', sans-serif;
+   }
 
-    .search-input {
-        width: 100%; 
-        padding: 10px 40px 10px 10px; 
-        border: 1px solid #ccc; 
-        border-radius: 25px; 
-        font-size: 16px;
-    }
+   .search-input {
+       width: 100%; 
+       padding: 10px 40px 10px 10px; 
+       border: 1px solid #ccc; 
+       border-radius: 25px; 
+       font-size: 16px;
+   }
 
-    .fa-search { 
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #ccc;
-    }
+   .fa-search { 
+       position: absolute;
+       right: 10px;
+       top: 50%;
+       transform: translateY(-50%);
+       color: #ccc;
+   }
 
-    #coordinates {
-        margin-top: 20px;
-    }
+   #coordinates {
+       margin-top: 20px;
+   }
 
-    .dropdown {
-        position: absolute;
-        width: 100%;
-        max-height: 150px;
-        overflow-y: auto;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border-radius: 3px;
-        display: none;
-        z-index: 9998;
-        margin-top: 5px;
-    }
+   .dropdown {
+       position: absolute;
+       width: 100%;
+       max-height: 150px;
+       overflow-y: auto;
+       background-color: #fff;
+       border: 1px solid #ccc;
+       border-radius: 3px;
+       display: none;
+       z-index: 100;
+       margin-top: 5px;
+   }
 
-    .dropdown li {
-        padding: 10px;
-        cursor: pointer;
-    }
+   .dropdown li {
+       padding: 10px;
+       cursor: pointer;
+   }
 
-    .dropdown li:hover {
-        background-color: #f0f0f0;
-    }
+   .dropdown li:hover {
+       background-color: #f0f0f0;
+   }
 
-    /* Custom scrollbar styles */
-    .dropdown::-webkit-scrollbar {
-        width: 12px;
-    }
+   /* Custom scrollbar styles */
+   .dropdown::-webkit-scrollbar {
+       width: 12px;
+   }
 
-    .dropdown::-webkit-scrollbar-track {
-        background: #f1f1f1;
-    }
+   .dropdown::-webkit-scrollbar-track {
+       background: #f1f1f1;
+   }
 
-    .dropdown::-webkit-scrollbar-thumb {
-        background: #888;
-    }
+   .dropdown::-webkit-scrollbar-thumb {
+       background: #888;
+   }
 
-    .dropdown::-webkit-scrollbar-thumb:hover {
-        background: #555;
-    }
+   .dropdown::-webkit-scrollbar-thumb:hover {
+       background: #555;
+   }
 </style>
 <section id="me">
-    <br>
-    <div class="search-bar">
-        <input type="text" class="search-input" placeholder="Search..." id="searchInput">
-        <i class="fa fa-search"></i>
-        <ul class="dropdown" id="dropdown"></ul>
-    </div>
-    <br>
-    <iframe
-        id="mapIframe"
-        style="border:0"
-        loading="lazy"
-        allowfullscreen
-        referrerpolicy="no-referrer-when-downgrade"
-        src="">
-    </iframe>
-    <div id="coordinates"></div>
+   <br>
+   <div class="search-bar">
+       <input type="text" class="search-input" placeholder="Search..." id="searchInput">
+       <i class="fa fa-search"></i>
+       <ul class="dropdown" id="dropdown"></ul>
+   </div>
+   <br>
+   <iframe
+       id="mapIframe"
+       style="border:0"
+       loading="lazy"
+       allowfullscreen
+       referrerpolicy="no-referrer-when-downgrade"
+       src="">
+   </iframe>
+   <div id="coordinates"></div>
 </section>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const searchInput = document.getElementById("searchInput");
-        const dropdown = document.getElementById("dropdown");
-        const mapIframe = document.getElementById("mapIframe");
-        const coordinatesDiv = document.getElementById("coordinates");
-        const defaultLocation = { lat: 51.747045, lon: 19.455757 }; // Default location (can be changed)
-        let userPosition = null;
+   document.addEventListener("DOMContentLoaded", function() {
+       const searchInput = document.getElementById("searchInput");
+       const dropdown = document.getElementById("dropdown");
+       const mapIframe = document.getElementById("mapIframe");
+       const coordinatesDiv = document.getElementById("coordinates");
+       const defaultLocation = { lat: 51.747045, lon: 19.455757 }; // Default location (can be changed)
+       let userPosition = null;
 
-        // Fetch building names and populate the custom dropdown
-        fetch('/building-names')
-            .then(response => response.json())
-            .then(data => {
-                data.forEach(building => {
-                    const li = document.createElement("li");
-                    li.textContent = building.Name;
-                    li.addEventListener("click", function() {
-                        searchInput.value = building.Name;
-                        dropdown.style.display = 'none';
-                        fetchCoordinates(building.Name);
-                    });
-                    dropdown.appendChild(li);
-                });
-            })
-            .catch(error => {
-                console.error("Error fetching building names:", error);
-            });
+       // Fetch building names and populate the custom dropdown
+       fetch('/building-names')
+           .then(response => response.json())
+           .then(data => {
+               data.forEach(building => {
+                   const li = document.createElement("li");
+                   li.textContent = building.Name;
+                   li.addEventListener("click", function() {
+                       searchInput.value = building.Name;
+                       dropdown.style.display = 'none';
+                       fetchCoordinates(building.Name);
+                   });
+                   dropdown.appendChild(li);
+               });
+           })
+           .catch(error => {
+               console.error("Error fetching building names:", error);
+           });
 
-        searchInput.addEventListener("focus", function() {
-            const items = dropdown.getElementsByTagName("li");
-            Array.from(items).forEach(item => {
-                item.style.display = "block";
-            });
-            dropdown.style.display = 'block';
-        });
+       searchInput.addEventListener("focus", function() {
+           const items = dropdown.getElementsByTagName("li");
+           Array.from(items).forEach(item => {
+               item.style.display = "block";
+           });
+           dropdown.style.display = 'block';
+       });
 
-        searchInput.addEventListener("input", function() {
-            const filter = searchInput.value.toLowerCase();
-            const items = dropdown.getElementsByTagName("li");
-            let matchFound = false;
-            Array.from(items).forEach(item => {
-                if (item.textContent.toLowerCase().indexOf(filter) > -1) {
-                    item.style.display = "block";
-                    matchFound = true;
-                } else {
-                    item.style.display = "none";
-                }
-            });
-            dropdown.style.display = matchFound ? 'block' : 'none';
-        });
+       searchInput.addEventListener("input", function() {
+           const filter = searchInput.value.toLowerCase();
+           const items = dropdown.getElementsByTagName("li");
+           let matchFound = false;
+           Array.from(items).forEach(item => {
+               if (item.textContent.toLowerCase().indexOf(filter) > -1) {
+                   item.style.display = "block";
+                   matchFound = true;
+               } else {
+                   item.style.display = "none";
+               }
+           });
+           dropdown.style.display = matchFound ? 'block' : 'none';
+       });
 
-        searchInput.addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                fetchCoordinates(searchInput.value);
-                dropdown.style.display = 'none';
-            }
-        });
+       searchInput.addEventListener("keypress", function(event) {
+           if (event.key === "Enter") {
+               event.preventDefault();
+               fetchCoordinates(searchInput.value);
+               dropdown.style.display = 'none';
+           }
+       });
 
-        document.addEventListener("click", function(event) {
-            if (!event.target.closest(".search-bar")) {
-                dropdown.style.display = 'none';
-            }
-        });
+       document.addEventListener("click", function(event) {
+           if (!event.target.closest(".search-bar")) {
+               dropdown.style.display = 'none';
+           }
+       });
 
-        function fetchCoordinates(buildingName) {
-            fetch(`/coordinates?name=${encodeURIComponent(buildingName)}`)
-                .then(response => response.text())
-                .then(text => {
-                    const data = JSON.parse(text);
-                    if (data.Latitude !== 0 && data.Longitude !== 0) {
-                        const { Latitude, Longitude } = data;
-                        updateMap(Latitude, Longitude);
-                    } else {
-                        coordinatesDiv.textContent = "Building not found";
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching coordinates:', error);
-                    coordinatesDiv.textContent = `Error fetching coordinates: ${error}`;
-                });
-        }
+       function fetchCoordinates(buildingName) {
+           fetch(`/coordinates?name=${encodeURIComponent(buildingName)}`)
+               .then(response => response.text())
+               .then(text => {
+                   const data = JSON.parse(text);
+                   if (data.Latitude !== 0 && data.Longitude !== 0) {
+                       const { Latitude, Longitude } = data;
+                       updateMap(Latitude, Longitude);
+                   } else {
+                       coordinatesDiv.textContent = "Building not found";
+                   }
+               })
+               .catch(error => {
+                   console.error('Error fetching coordinates:', error);
+                   coordinatesDiv.textContent = `Error fetching coordinates: ${error}`;
+               });
+       }
 
-        function updateMap(latitude, longitude) {
-            if (userPosition) {
-                const { lat, lon } = userPosition;
-                const key = 'AIzaSyAhGmzFMkJD0MZxlfbsTalDFMmLS1Nh7v4';
-                const url = `https://www.google.com/maps/embed/v1/directions?key=${key}&origin=${lat},${lon}&destination=${latitude},${longitude}&mode=walking&zoom=15`;
-                mapIframe.src = url;
-            } else {
-                mapIframe.src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyAhGmzFMkJD0MZxlfbsTalDFMmLS1Nh7v4&q=${latitude},${longitude}&zoom=15`;
-            }
-        }
+       function updateMap(latitude, longitude) {
+           if (userPosition) {
+               const { lat, lon } = userPosition;
+               const key = 'AIzaSyAhGmzFMkJD0MZxlfbsTalDFMmLS1Nh7v4';
+               const url = `https://www.google.com/maps/embed/v1/directions?key=${key}&origin=${lat},${lon}&destination=${latitude},${longitude}&mode=walking&zoom=15`;
+               mapIframe.src = url;
+           } else {
+               mapIframe.src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyAhGmzFMkJD0MZxlfbsTalDFMmLS1Nh7v4&q=${latitude},${longitude}&zoom=15`;
+           }
+       }
 
-        function initializeMap() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        userPosition = {
-                            lat: position.coords.latitude,
-                            lon: position.coords.longitude
-                        };
-                        updateMap(userPosition.lat, userPosition.lon);
-                    },
-                    error => {
-                        console.error('Error getting user location:', error);
-                        updateMap(defaultLocation.lat, defaultLocation.lon);
-                    }
-                );
-            } else {
-                console.error('Geolocation is not supported by this browser.');
-                updateMap(defaultLocation.lat, defaultLocation.lon);
-            }
-        }
+       function initializeMap() {
+           if (navigator.geolocation) {
+               navigator.geolocation.getCurrentPosition(
+                   position => {
+                       userPosition = {
+                           lat: position.coords.latitude,
+                           lon: position.coords.longitude
+                       };
+                       updateMap(userPosition.lat, userPosition.lon);
+                   },
+                   error => {
+                       console.error('Error getting user location:', error);
+                       updateMap(defaultLocation.lat, defaultLocation.lon);
+                   }
+               );
+           } else {
+               console.error('Geolocation is not supported by this browser.');
+               updateMap(defaultLocation.lat, defaultLocation.lon);
+           }
+       }
 
-        initializeMap();
-    });
+       initializeMap();
+   });
 </script>
 
 <%- include("partials/footer.ejs") %>
