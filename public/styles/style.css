@@ -493,8 +493,8 @@ small{
     transform: scale(1);
 }
 .form_container.active{
-    height: 540px;
-    top: 15vh;
+    height: 560px;
+    top: 14vh;
 }
 .form_container .form.login_form{
     transition: transform .18s ease;

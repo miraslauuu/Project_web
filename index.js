@@ -44,6 +44,12 @@ const posts_map = [
     {href: '/plan', id:'plan_id',class:'disable',text:'Plan' },
     {href: '/map', id:'map_id',class:'active',text:'Map'},
 ]
+const posts_rodo = [
+    {href: '/', id:'home_id',class:'disable',text:'Home'},
+    {href: '/posts', id:'posts_id',class:'disable',text:'Posts' },
+    {href: '/plan', id:'plan_id',class:'disable',text:'Plan' },
+    {href: '/map', id:'map_id',class:'disable',text:'Map'},
+]
 app.get("/", (req, res) => {
     res.render("index.ejs", {
         links: posts_index
@@ -57,6 +63,12 @@ app.get("/posts", (req, res) => {
       posts: posts,
     });
   });
+  app.get("/privacy-policy", (req, res) => {
+    res.render("rodo.ejs", {
+        links: posts_rodo
+    });
+});
+
   app.post("/submit",(req,res)=>{
     const date = new Date().toLocaleString();
     const postTitle=req.body.postTitle;
