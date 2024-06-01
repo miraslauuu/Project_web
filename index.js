@@ -50,21 +50,27 @@ app.get("/", (req, res) => {
     });
 });
 let posts=[];
+
 app.get("/posts", (req, res) => {
     res.render("posts.ejs", {
-        links: posts_posts,
-        posts:posts
+      links: posts_posts,
+      posts: posts,
     });
-});
-app.post("/submit",(req,res)=>{//new objects will be on top
-    const text=req.body["text"];
-    posts.unshift({ text });
+  });
+  app.post("/submit",(req,res)=>{
+    const date = new Date().toLocaleString();
+    const postTitle=req.body.postTitle;
+    const newPost = {
+        title: postTitle,
+        date: date
+      };
+    posts.unshift(newPost);
     res.redirect("/posts");
   });
   app.patch('/comment/:id', (req, res) => {
     const { id } = req.params;
     const { updatedComment } = req.body;
-    posts[id].text = updatedComment; 
+    posts[id].title = updatedComment; 
     res.redirect("/posts");
   });
   app.delete('/comment/:id', (req, res) => {
@@ -72,6 +78,7 @@ app.post("/submit",(req,res)=>{//new objects will be on top
     posts.splice(id, 1);
     res.redirect("/posts");
   });
+  
 // app.get("/posts", async (req, res) => {
 //     try {
 //         let pool = await sql.connect(dbConfig);
