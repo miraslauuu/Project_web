@@ -396,3 +396,122 @@ PRINT @LAN
 PRINT @LON*/
 
 GO 
+
+CREATE OR ALTER PROCEDURE AddPost
+    @UserID INT,
+    @Title NVARCHAR(50),
+    @Content NVARCHAR(1000),
+    @Date DATETIMEOFFSET,
+    @Result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Check for SQL injection in Title and Content
+    DECLARE @SafeInput INT;
+    EXEC CheckInput @Title, @SafeInput OUTPUT;
+    IF @SafeInput = 1
+    BEGIN
+        SET @Result = 2; -- Unsafe input detected
+        RETURN;
+    END
+
+    EXEC CheckInput @Content, @SafeInput OUTPUT;
+    IF @SafeInput = 1
+    BEGIN
+        SET @Result = 2; -- Unsafe input detected
+        RETURN;
+    END
+
+    -- Insert post into the Posts table
+    BEGIN TRY
+        INSERT INTO Posts (UserID, Title, Content, Date)
+        VALUES (@UserID, @Title, @Content, @Date);
+        SET @Result = 0; -- Success
+    END TRY
+    BEGIN CATCH
+        SET @Result = 1; -- Failure
+    END CATCH
+END
+GO
+
+CREATE OR ALTER PROCEDURE GetAllPosts
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN
+        SELECT 
+            PostID, 
+            UserID, 
+            Title, 
+            Content, 
+            Date 
+        FROM Posts 
+        ORDER BY Date DESC;
+    END
+END
+GO
+
+
+CREATE OR ALTER PROCEDURE DeletePost
+    @PostID INT,
+    @Result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Delete post from the Posts table
+    BEGIN TRY
+        IF EXISTS (SELECT 1 FROM Posts WHERE PostID = @PostID)
+        BEGIN
+            DELETE FROM Posts WHERE PostID = @PostID;
+            SET @Result = 0; -- Success
+        END
+        ELSE
+        BEGIN
+            SET @Result = 1; -- Post does not exist
+        END
+    END TRY
+    BEGIN CATCH
+        SET @Result = 2; -- Failure
+    END CATCH
+END
+GO
+
+
+CREATE OR ALTER PROCEDURE UpdatePost
+    @PostID INT,
+    @Content NVARCHAR(1000),
+    @Date DATETIMEOFFSET,
+    @Result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Check for SQL injection in Content
+    DECLARE @SafeInput INT;
+    EXEC CheckInput @Content, @SafeInput OUTPUT;
+    IF @SafeInput = 1
+    BEGIN
+        SET @Result = 2; -- Unsafe input detected
+        RETURN;
+    END
+
+    -- Update post content in the Posts table
+    BEGIN TRY
+        IF EXISTS (SELECT 1 FROM Posts WHERE PostID = @PostID)
+        BEGIN
+            UPDATE Posts SET Content = @Content, Date = @Date WHERE PostID = @PostID;
+            SET @Result = 0; -- Success
+        END
+        ELSE
+        BEGIN
+            SET @Result = 1; -- Post does not exist
+        END
+    END TRY
+    BEGIN CATCH
+        SET @Result = 1; -- Failure
+    END CATCH
+END
+GO
