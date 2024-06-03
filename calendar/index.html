@@ -8,24 +8,27 @@
 </head>
 <body>
     <div id="container">
-        <div id="header">
-            <div id="monthDisplay"></div>
-            <div>
-                <button id="backButton">Back</button>
-                <button id="nextButton">Next</button>
+        <header id="header">
+            <h2>Plan</h2>
+            <div id="viewOptions">
+                <button id="monthlyViewButton">Monthly calendar</button>
+                <button id="weeklyViewButton">Weekly calendar</button>
             </div>
+        </header>
+        <div id="monthDisplayContainer">
+            <button id="backButton">Back</button>
+            <div id="monthDisplay"></div>
+            <button id="nextButton">Next</button>
         </div>
-
         <div id="weekdays">
+            <div class="weekday">Sunday</div>
             <div class="weekday">Monday</div>
             <div class="weekday">Tuesday</div>
             <div class="weekday">Wednesday</div>
             <div class="weekday">Thursday</div>
             <div class="weekday">Friday</div>
             <div class="weekday">Saturday</div>
-            <div class="weekday">Sunday</div>
         </div>
-
         <div id="calendar"></div>
     </div>
 
