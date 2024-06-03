@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar App Vanilla JS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="container">
+        <div id="header">
+            <div id="monthDisplay"></div>
+            <div>
+                <button id="backButton">Back</button>
+                <button id="nextButton">Next</button>
+            </div>
+        </div>
+
+        <div id="weekdays">
+            <div class="weekday">Monday</div>
+            <div class="weekday">Tuesday</div>
+            <div class="weekday">Wednesday</div>
+            <div class="weekday">Thursday</div>
+            <div class="weekday">Friday</div>
+            <div class="weekday">Saturday</div>
+            <div class="weekday">Sunday</div>
+        </div>
+
+        <div id="calendar"></div>
+    </div>
+
+    <div id="dayEventsModal">
+        <h2>Events for <span id="selectedDate"></span></h2>
+        <div id="eventsList"></div>
+        <button id="addEventButton">Add Event</button>
+        <button id="closeDayEventsModal">Close</button>
+    </div>
+
+    <div id="newEventModal">
+        <h2>New Event</h2>
+        <input id="eventTitleInput" placeholder="Event Title" />
+        <button id="saveButton">Save</button>
+        <button id="cancelButton">Cancel</button>
+    </div>
+
+    <div id="modalBackDrop"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
