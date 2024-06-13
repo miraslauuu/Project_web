@@ -5,12 +5,12 @@ import sql from "mssql";
 import session from "express-session";
 
 const dbConfig = {
-    server: "LAPTOP-BJSNAIAH",
-    database: "SVO_DB_PROJECT_FINAL_VERSION",
+    server: "LAPTOP-BJSNAIAH", 
+    database: "SVO_DB_PROJECT_FINAL_VERSION", 
     user: "anhelina",
-    password: "Hfge!0406",
+    password: "Hfge!0406", 
     options: {
-        encrypt: false,
+        encrypt: false, 
         enableArithAbort: true
     }
 };
@@ -32,58 +32,55 @@ app.use(session({
 }));
 
 const posts_index = [
-    { href: '/', id: 'home_id', class: 'active', text: 'Home' },
-    { href: '/posts', id: 'posts_id', class: 'disable', text: 'Posts' },
-    { href: '/plan', id: 'plan_id', class: 'disable', text: 'Plan' },
-    { href: '/map', id: 'map_id', class: 'disable', text: 'Map' },
-];
+    {href: '/', id:'home_id',class:'active',text:'Home'},
+    {href: '/posts', id:'posts_id',class:'disable',text:'Posts' },
+    {href: '/plan', id:'plan_id',class:'disable',text:'Plan' },
+    {href: '/map', id:'map_id',class:'disable',text:'Map'},
+]
 const posts_posts = [
-    { href: '/', id: 'home_id', class: 'disable', text: 'Home' },
-    { href: '/posts', id: 'posts_id', class: 'active', text: 'Posts' },
-    { href: '/plan', id: 'plan_id', class: 'disable', text: 'Plan' },
-    { href: '/map', id: 'map_id', class: 'disable', text: 'Map' },
-];
+    {href: '/', id:'home_id',class:'disable',text:'Home'},
+    {href: '/posts', id:'posts_id',class:'active',text:'Posts' },
+    {href: '/plan', id:'plan_id',class:'disable',text:'Plan' },
+    {href: '/map', id:'map_id',class:'disable',text:'Map'},
+]
 const posts_plan = [
-    { href: '/', id: 'home_id', class: 'disable', text: 'Home' },
-    { href: '/posts', id: 'posts_id', class: 'disable', text: 'Posts' },
-    { href: '/plan', id: 'plan_id', class: 'active', text: 'Plan' },
-    { href: '/map', id: 'map_id', class: 'disable', text: 'Map' },
-];
+    {href: '/', id:'home_id',class:'disable',text:'Home'},
+    {href: '/posts', id:'posts_id',class:'disable',text:'Posts' },
+    {href: '/plan', id:'plan_id',class:'active',text:'Plan' },
+    {href: '/map', id:'map_id',class:'disable',text:'Map'},
+]
 const posts_map = [
-    { href: '/', id: 'home_id', class: 'disable', text: 'Home' },
-    { href: '/posts', id: 'posts_id', class: 'disable', text: 'Posts' },
-    { href: '/plan', id: 'plan_id', class: 'disable', text: 'Plan' },
-    { href: '/map', id: 'map_id', class: 'active', text: 'Map' },
-];
-
+    {href: '/', id:'home_id',class:'disable',text:'Home'},
+    {href: '/posts', id:'posts_id',class:'disable',text:'Posts' },
+    {href: '/plan', id:'plan_id',class:'disable',text:'Plan' },
+    {href: '/map', id:'map_id',class:'active',text:'Map'},
+]
+const posts_rodo = [
+    {href: '/', id:'home_id',class:'disable',text:'Home'},
+    {href: '/posts', id:'posts_id',class:'disable',text:'Posts' },
+    {href: '/plan', id:'plan_id',class:'disable',text:'Plan' },
+    {href: '/map', id:'map_id',class:'disable',text:'Map'},
+]
 app.get("/", (req, res) => {
     res.render("index.ejs", {
         links: posts_index
     });
 });
-
-let posts = [];
+let posts=[];
 
 app.get("/posts", (req, res) => {
     res.render("posts.ejs", {
-        links: posts_posts,
-        posts: posts
+      links: posts_posts,
+      posts: posts,
+    });
+  });
+  app.get("/privacy-policy", (req, res) => {
+    res.render("rodo.ejs", {
+        links: posts_rodo
     });
 });
 
-app.get("/plan", (req, res) => {
-    res.render("plan.ejs", {
-        links: posts_plan
-    });
-});
-
-app.get("/map", (req, res) => {
-    res.render("map.ejs", {
-        links: posts_map
-    });
-});
-
-app.post("/submit", async (req, res) => {
+  app.post("/submit", async (req,res)=>{
     const { title, text } = req.body;
     const userID = req.session.userID;
     const date = new Date();
@@ -113,9 +110,10 @@ app.post("/submit", async (req, res) => {
     } finally {
         sql.close();
     }
-});
+  });
+  
 
-app.patch('/comment/:id', async (req, res) => {
+  app.patch('/comment/:id', async (req, res) => {
     const { id } = req.params;
     const { updatedComment } = req.body;
     const userID = req.session.userID;
@@ -150,6 +148,7 @@ app.patch('/comment/:id', async (req, res) => {
     }
 });
 
+
 app.delete('/comment/:id', async (req, res) => {
     const { id } = req.params;
     const userID = req.session.userID;
@@ -163,7 +162,6 @@ app.delete('/comment/:id', async (req, res) => {
             .input('UserID', sql.Int, userID)
             .output('Result', sql.Int)
             .execute('DeletePost');
-
         const resultCode = result.output.Result;
         if (resultCode === 0) {
             res.redirect("/posts");
@@ -179,19 +177,35 @@ app.delete('/comment/:id', async (req, res) => {
     }
 });
 
+
+app.get("/plan", (req, res) => {
+    res.render("plan.ejs", {
+        links: posts_plan
+    });
+});
+
+app.get("/map", (req, res) => {
+    res.render("map.ejs", {
+        links: posts_map
+    });
+});
+
+
+// here handling login procedure
+// const sql = require('mssql');
+
 app.post("/login", async (req, res) => {
     const { uname, psw } = req.body;
     try {
         let pool = await sql.connect(dbConfig);
         let result = await pool.request()
-            .input('UserUniversityID', sql.Int, uname)
-            .input('UserPassword', sql.NVarChar(255), psw)
-            .output('Result', sql.Int)
-            .execute('UserLogInValidation');
+                        .input('UserUniversityID', sql.Int, uname)
+                        .input('UserPassword', sql.NVarChar(255), psw)
+                        .output('Result', sql.Int)
+                        .execute('UserLogInValidation');
 
         const loginResult = result.output.Result;
         if (loginResult === 0) {
-            req.session.userID = uname; // Ustaw UserID w sesji
             res.send("Login Successful");
         } else if (loginResult === 1) {
             res.send("User does not exist");
@@ -200,6 +214,7 @@ app.post("/login", async (req, res) => {
         } else {
             res.send("Unexpected result");
         }
+
     } catch (err) {
         res.status(500).send("Failed to connect to the database: " + err.message);
     } finally {
@@ -207,20 +222,21 @@ app.post("/login", async (req, res) => {
     }
 });
 
+// registration proces handling
 app.post("/register", async (req, res) => {
     const { UserUniversityID, UserFirstName, UserLastName, UserPassword } = req.body;
     let pool;
 
     try {
-        pool = await sql.connect(dbConfig);
+        pool = await sql.connect(dbConfig); // Connect to the database
         let result = await pool.request()
             .input("UserUniversityID", sql.Int, UserUniversityID)
             .input("UserFirstName", sql.NVarChar(30), UserFirstName)
             .input("UserLastName", sql.NVarChar(30), UserLastName)
             .input("UserPassword", sql.NVarChar(255), UserPassword)
             .output("Result", sql.Int)
-            .execute("UserRegistration");
-
+            .execute("UserRegistration"); // Execute the stored procedure
+        
         const registrationResult = result.output.Result;
         if (registrationResult === 0) {
             res.send("Registration successful!");
@@ -231,14 +247,16 @@ app.post("/register", async (req, res) => {
         } else {
             res.send("Unexpected error occurred");
         }
+
     } catch (err) {
         res.status(500).send("Failed to register user: " + err.message);
     } finally {
         if (pool) {
-            pool.close();
+            pool.close(); // Close the database connection
         }
     }
 });
+
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
