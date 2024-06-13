@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 FILE STRUCTURE :
 	A - Creating the database for out website
 	B - Creating symmetric encryption (ensuring security of database)
@@ -28,9 +28,9 @@ GO
 -- Creating symmetric encryption (ensuring security of database)
 /* *********************************************************************************************************************************************** */
 
-/*
+
 USE SVO_DB_PROJECT_FINAL_VERSION
-CREATE MASTER KEY 
+/*CREATE MASTER KEY 
 ENCRYPTION BY PASSWORD = '7#kD9G@f2$Pq&Z!';
 
 -- Create certificate to protect symmetric key
@@ -40,8 +40,8 @@ EXPIRY_DATE = '2026-01-01';
 
 -- Create symmetric key to encrypt data
 
--- tutaj bêdzie b³¹d jak spróbujecie odkodowaæ i nie macie 
--- odpowiedniego permission, w takim razie pisaæ do autora kodu
+-- tutaj bEdzie bÅ‚Ä…d jak sprÃ³bujecie odkodowaÄ‡ i nie macie 
+-- odpowiedniego permission, w takim razie pisaÄ‡ do autora kodu
 
 
 CREATE SYMMETRIC KEY SVOManagementSymmetricKey
@@ -97,130 +97,101 @@ GO
 
 -- Table Users
 
-IF EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Users') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
+IF NOT EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Users') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
 BEGIN 
-
-	DROP TABLE dbo.Users
-END
-
-CREATE TABLE Users(
+	CREATE TABLE Users(
 	UserID INT PRIMARY KEY IDENTITY (1,1) NOT NULL,
 	Password BINARY(64) NOT NULL, 
-	FirstName NVARCHAR(30) NOT NULL,
-	LastName NVARCHAR(30) NOT NULL,
+	FirstName VARCHAR(30) NOT NULL,
+	LastName VARCHAR(30) NOT NULL,
 	UniversityID INT NOT NULL UNIQUE,
 	UniversityIDExpired INT DEFAULT 0
 )
+END
+
 
 GO
 
 -- Table Posts
 
 
-IF EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Posts') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
+IF NOT EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Posts') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
 BEGIN 
-
-	DROP TABLE dbo.Posts
-END
-
-CREATE TABLE Posts(
+	CREATE TABLE Posts(
 	PostID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
-	UserID INT  NOT NULL /*CONSTRAINT UserID FOREIGN KEY (UserID)*/ REFERENCES Users(UserID),
-	Title NVARCHAR(50),
-	Content NVARCHAR(1000),  --dozwolona d³ugoœæ postu
+	UserID INT  NOT NULL, FOREIGN KEY (UserID) REFERENCES Users(UserID),
+	Title VARCHAR(50),
+	Content VARCHAR(1000),  --dozwolona dÅ‚ugoÅ›Ä‡ postu
 	Date DATETIMEOFFSET
 )
+END
+
 
 GO 
 
 -- Table Calendars
 
-IF EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Calendars') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
+IF NOT EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Calendars') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
 BEGIN 
-
-	DROP TABLE dbo.Calendars
+	CREATE TABLE Calendars(
+	CalendarID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
+	UserID INT NOT NULL UNIQUE, FOREIGN KEY (UserID) REFERENCES Users(UserID),
+	Type BIT        -- tutaj 0 = na miesï¿½c, 1 = na tydzieÅ„
+)
 END
 
-CREATE TABLE Calendars(
-	CalendarID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
-	UserID INT NOT NULL UNIQUE/*, CONSTRAINT UserID FOREIGN KEY (UserID)*/ REFERENCES Users(UserID),
-	Type BIT        -- tutaj 0 = na mies¹c, 1 = na tydzieñ
-)
 
 
 GO
 
 -- Table Events
 
-IF EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Events') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
+IF NOT EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Events') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
 BEGIN 
-
-	DROP TABLE dbo.Events
-END
-
-CREATE TABLE Events(
+	CREATE TABLE Events(
 	EventID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
-	UserID INT NOT NULL/*, CONSTRAINT UserID FOREIGN KEY (UserID)*/ REFERENCES Users(UserID),
-	CalendarID int NOT NULL/*, FOREIGN KEY (CalendarID)*/ REFERENCES Calendars(CalendarID),
+	UserID INT NOT NULL, FOREIGN KEY (UserID) REFERENCES Users(UserID),
+	CalendarID int NOT NULL, FOREIGN KEY (CalendarID) REFERENCES Calendars(CalendarID),
 	Date DATETIMEOFFSET NOT NULL,
 	Type BIT NOT NULL,     -- zajecia Type = 0, rozrywka Type = 1
-	Title NVARCHAR(30) NOT NULL,
-	Description NVARCHAR(100)
+	Title VARCHAR(30) NOT NULL,
+	Description VARCHAR(100)
 )
-
-GO 
-
--- Table Maps
-
-IF EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Maps') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
-BEGIN 
-
-	DROP TABLE dbo.Maps
 END
-
-CREATE TABLE Maps(
-	MapID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,  -- tutaj nie jestem pewna czy trzeba klucz, 
-	                                                 -- byæ mo¿e przyda siê do widoków
-)
 
 
 GO
 
--- Table Buildings
-
-IF EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Buildings') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
+IF NOT EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Coordinates') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
 BEGIN 
-
-	DROP TABLE dbo.Buildings
-END
-
-CREATE TABLE Buildings(
-	BuildingID int PRIMARY KEY IDENTITY (1, 1) NOT NULL,
-	MapID INT NOT NULL/*, CONSTRAINT MapID FOREIGN KEY (MapID)*/ REFERENCES Maps(MapID),
-	City NVARCHAR(30) DEFAULT '£ódŸ',
-	Street NVARCHAR(30),
-	BuildingNum INT,
-	PostCode NVARCHAR(10)
+	CREATE TABLE Coordinates(
+	ID int PRIMARY KEY IDENTITY(1, 1) NOT NULL,
+    Name NVARCHAR(255),
+    Latitude FLOAT,
+    Longitude FLOAT
 )
+
+END
 
 
 GO
+
+INSERT INTO Coordinates( Name, Latitude, Longitude) VALUES('Library', 51.745641, 19.454742)
+SELECT * FROM Coordinates
 
 -- Table Messages
 
-IF EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Buildings') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
+IF NOT EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Messages') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
 BEGIN 
-
-	DROP TABLE dbo.Buildings
+	CREATE TABLE Messages(
+	MessageID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
+	SentByUserID INT NOT NULL, FOREIGN KEY (SentByUserID) REFERENCES Users(UserID),  --id tego co wysÅ‚al wiadomoÅ›Ä‡
+	SentToUserID INT NOT NULL, FOREIGN KEY (SentToUserID) REFERENCES Users(UserID),  --id tego komu wysÅ‚ali 
+	Date DATETIMEOFFSET,
+	Content VARCHAR(100)
+)
 END
 
-CREATE TABLE Messages(
-	MessageID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
-	SentByUserID INT NOT NULL/*, CONSTRAINT SentByUserID FOREIGN KEY (SentByUserID)*/ REFERENCES Users(UserID),  --id tego co wys³al wiadomoœæ
-	SentToUserID INT NOT NULL/*, CONSTRAINT SentToUserID FOREIGN KEY (SentToUserID)*/ REFERENCES Users(UserID),  --id tego komu wys³ali 
-	Date DATETIMEOFFSET,
-	Content NVARCHAR(100)
-)
 
 
 /* *********************************************************************************************************************************************** */
@@ -228,9 +199,42 @@ CREATE TABLE Messages(
 -- Creating procedures for user log in
 /* *********************************************************************************************************************************************** */
 GO
-drop procedure HashUserPassword
+--drop procedure HashUserPassword
 go
-CREATE PROCEDURE HashUserPassword
+
+-- procedure to check if user input is secure
+CREATE OR ALTER PROCEDURE CheckInput
+	@Input VARCHAR(255),
+	@Result INT OUTPUT
+AS
+BEGIN
+
+SET @Result = 0;
+
+    -- Check for common SQL injection patterns
+    IF @Input LIKE '%--%' OR      -- Inline comment
+       @Input LIKE '%/*%' OR      -- Block comment start
+       @Input LIKE '%*/%' OR      -- Block comment end
+       @Input LIKE '%''%' OR      -- Single quote
+       @Input LIKE '%"%' OR       -- Double quote
+       @Input LIKE '%xp_%' OR     -- Extended procedure
+       @Input LIKE '%sp_%' OR     -- System stored procedure
+       @Input LIKE '%select%' OR  -- SQL keywords (basic)
+       @Input LIKE '%insert%' OR
+       @Input LIKE '%update%' OR
+       @Input LIKE '%delete%' OR
+       @Input LIKE '%drop%' OR
+       @Input LIKE '%alter%' OR
+       @Input LIKE '%exec%' OR
+       @Input LIKE '%union%'      -- SQL keywords (advanced)
+    BEGIN
+        SET @Result = 1;
+    END
+END
+ 
+
+GO
+CREATE OR ALTER PROCEDURE HashUserPassword
 	@Password NVARCHAR(255),
 	@Hashed_password BINARY(64) OUTPUT
 	WITH ENCRYPTION
@@ -239,9 +243,10 @@ BEGIN
 	SET NOCOUNT ON;
     SET @Hashed_password = HASHBYTES('SHA2_256', @Password);
 END
+
 GO
 
-CREATE PROCEDURE CheckIfUserExists   -- if user exists returns 1, else 0
+CREATE OR ALTER PROCEDURE CheckIfUserExists   -- if user exists returns 1, else 0
 	@UserUniversityID int
 	WITH ENCRYPTION
 AS
@@ -261,23 +266,31 @@ BEGIN
 END
 
 GO
-select * from Users
-go
-delete from users 
-where users.UserID = 1
-drop procedure UserRegistration
-go
 
-CREATE PROCEDURE UserRegistration
+
+CREATE OR ALTER PROCEDURE UserRegistration
 	@UserUniversityID int,
 	@UserFirstName nvarchar(30),
 	@UserLastName nvarchar(30),
 	@UserPassword nvarchar(255),
 	@Result int OUTPUT
-	WITH ENCRYPTION
 AS 
 BEGIN
-	DECLARE @UserExistsError int;
+	DECLARE @SafeInput INT
+	EXEC CheckInput @UserFirstName, @SafeInput OUTPUT
+	IF @SafeInput = 1
+	BEGIN
+		SET @Result = 2
+		RETURN
+	END
+	EXEC CheckInput @UserLastName, @SafeInput OUTPUT
+	IF @SafeInput = 1
+	BEGIN
+		SET @Result = 2
+		RETURN
+	END
+
+	DECLARE @UserExistsError INT;
 	EXEC @UserExistsError = CheckIfUserExists @UserUniversityID;
 	IF @UserExistsError = 1
 		BEGIN
@@ -292,30 +305,23 @@ BEGIN
     VALUES (@UserUniversityID, @UserFirstName, @UserLastName, @UserHashedPassword);
 	
 	--check is insertion was successful
-	/*IF @@ROWCOUNT > 0
+	IF @@ROWCOUNT > 0
 	BEGIN
 		SET @Result = 0; --ok
 	END
 	ELSE 
-	BEGIN*/
-		SET @Result = 0; --failed
-	--END
+	BEGIN
+		SET @Result = 2; --failed
+	END
 
 END
 GO
 
-drop procedure UserLogInValidation;
-
-select * from users
-
-go
-
-
-
-CREATE PROCEDURE UserLogInValidation
+CREATE OR ALTER PROCEDURE UserLogInValidation
     @UserUniversityID int,
     @UserPassword nvarchar(255),
     @Result int OUTPUT
+	WITH ENCRYPTION
 AS
 BEGIN
     DECLARE @UserDontExistsError int;
@@ -342,7 +348,170 @@ END
 
 GO
 
-/*DECLARE @RES INT;  -- Declaration without initialization
-EXEC @RES = UserLogInValidation 123, 'haslo';
+CREATE OR ALTER PROCEDURE GetCoordinates
+    @Name NVARCHAR(255),
+    @Latitude FLOAT OUTPUT,
+    @Longitude FLOAT OUTPUT
+AS
+BEGIN
+	
+	DECLARE @SafeInput INT
+	EXEC CheckInput @Name, @SafeInput OUTPUT
+	IF @SafeInput = 1
+	BEGIN
+		SET @Latitude = 0
+		SET @Longitude = 0
+		RETURN
+	END
 
-PRINT CAST(@RES AS VARCHAR(10))*/
+    IF EXISTS (SELECT Latitude, Longitude FROM Coordinates WHERE Name = @Name)
+    BEGIN
+        PRINT 'Coordinates found'
+        SELECT @Latitude = Latitude, @Longitude = Longitude FROM Coordinates WHERE Name = @Name
+        PRINT 'Latitude: ' + CAST(@Latitude AS NVARCHAR(50))
+        PRINT 'Longitude: ' + CAST(@Longitude AS NVARCHAR(50))
+    END
+    ELSE
+    BEGIN
+        PRINT 'Coordinates not found'
+        SET @Latitude = 0
+        SET @Longitude = 0
+    END
+END
+
+
+
+
+/*DECLARE @Lat FLOAT, @Lng FLOAT;
+EXEC GetCoordinates @Name='Library', @Latitude=@Lat OUTPUT, @Longitude=@Lng OUTPUT;
+PRINT 'Latitude: ' + CAST(@Lat AS NVARCHAR(50))
+PRINT 'Longitude: ' + CAST(@Lng AS NVARCHAR(50))
+
+
+SELECT * FROM Coordinates
+
+DECLARE @LAN AS FLOAT = 1, @LON AS FLOAT = 1
+EXEC GetCoordinates 'Library', @LAN, @LON
+PRINT @LAN 
+PRINT @LON*/
+
+GO 
+
+CREATE OR ALTER PROCEDURE AddPost
+    @UserID INT,
+    @Title NVARCHAR(50),
+    @Content NVARCHAR(1000),
+    @Date DATETIMEOFFSET,
+    @Result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Check for SQL injection in Title and Content
+    DECLARE @SafeInput INT;
+    EXEC CheckInput @Title, @SafeInput OUTPUT;
+    IF @SafeInput = 1
+    BEGIN
+        SET @Result = 2; -- Unsafe input detected
+        RETURN;
+    END
+
+    EXEC CheckInput @Content, @SafeInput OUTPUT;
+    IF @SafeInput = 1
+    BEGIN
+        SET @Result = 2; -- Unsafe input detected
+        RETURN;
+    END
+
+    -- Insert post into the Posts table
+    BEGIN TRY
+        INSERT INTO Posts (UserID, Title, Content, Date)
+        VALUES (@UserID, @Title, @Content, @Date);
+        SET @Result = 0; -- Success
+    END TRY
+    BEGIN CATCH
+        SET @Result = 1; -- Failure
+    END CATCH
+END
+GO
+
+CREATE OR ALTER PROCEDURE GetAllPosts
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN
+        SELECT 
+            PostID, 
+            UserID, 
+            Title, 
+            Content, 
+            Date 
+        FROM Posts 
+        ORDER BY Date DESC;
+    END
+END
+GO
+
+
+CREATE OR ALTER PROCEDURE DeletePost
+    @PostID INT,
+    @Result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Delete post from the Posts table
+    BEGIN TRY
+        IF EXISTS (SELECT 1 FROM Posts WHERE PostID = @PostID)
+        BEGIN
+            DELETE FROM Posts WHERE PostID = @PostID;
+            SET @Result = 0; -- Success
+        END
+        ELSE
+        BEGIN
+            SET @Result = 1; -- Post does not exist
+        END
+    END TRY
+    BEGIN CATCH
+        SET @Result = 2; -- Failure
+    END CATCH
+END
+GO
+
+
+CREATE OR ALTER PROCEDURE UpdatePost
+    @PostID INT,
+    @Content NVARCHAR(1000),
+    @Date DATETIMEOFFSET,
+    @Result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Check for SQL injection in Content
+    DECLARE @SafeInput INT;
+    EXEC CheckInput @Content, @SafeInput OUTPUT;
+    IF @SafeInput = 1
+    BEGIN
+        SET @Result = 2; -- Unsafe input detected
+        RETURN;
+    END
+
+    -- Update post content in the Posts table
+    BEGIN TRY
+        IF EXISTS (SELECT 1 FROM Posts WHERE PostID = @PostID)
+        BEGIN
+            UPDATE Posts SET Content = @Content, Date = @Date WHERE PostID = @PostID;
+            SET @Result = 0; -- Success
+        END
+        ELSE
+        BEGIN
+            SET @Result = 1; -- Post does not exist
+        END
+    END TRY
+    BEGIN CATCH
+        SET @Result = 1; -- Failure
+    END CATCH
+END
+GO
