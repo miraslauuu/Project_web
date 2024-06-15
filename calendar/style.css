@@ -86,12 +86,15 @@ button {
 #calendar {
     width: 100%;
     margin: auto;
-    display: flex;
-    flex-wrap: wrap;
     background-color: var(--calendar-bg);
 }
 
-.day {
+.monthly-view {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.monthly-view .day {
     flex: 1;
     min-width: 170px;
     width: 200px;
@@ -107,7 +110,7 @@ button {
     color: white;
 }
 
-.day:hover {
+.monthly-view .day:hover {
     background-color: var(--day-hover-bg);
 }
 
@@ -204,4 +207,47 @@ button {
     cursor: pointer;
     padding: 5px;
     color: white;
+}
+
+/* Additional styles for weekly view */
+.weekly-view {
+    display: grid;
+    grid-template-columns: 60px repeat(7, 1fr);
+    grid-template-rows: 40px repeat(24, 40px);
+    gap: 1px;
+}
+
+.weekly-view .timeSlot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color);
+    color: white;
+    background-color: var(--background-color);
+}
+
+.weekly-view .daySlot {
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--day-bg);
+}
+
+.weekly-view .daySlot:hover {
+    background-color: var(--day-hover-bg);
+}
+
+.weekly-view .event {
+    background-color: #9b7879;
+    color: #222222;
+    border-radius: 5px;
+    padding: 2px;
+    font-size: 12px;
+}
+
+/* Hide the first row of weekdays for the weekly view */
+.weekly-view .timeSlot:nth-child(-n+8) {
+    display: none;
 }
