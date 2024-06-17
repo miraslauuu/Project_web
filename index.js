@@ -68,21 +68,36 @@ app.get("/", (req, res) => {
 });
 let posts=[];
 
-app.get("/posts", (req, res) => {
+app.get("/posts", async (req, res) => {
+    /*
     res.render("posts.ejs", {
       links: posts_posts,
       posts: posts,
-    });
+    });*/
+    try {
+        let pool = await sql.connect(dbConfig);
+        let result = await pool.request().execute('GetAllPosts');
+        posts = result.recordset;
+        res.render("posts.ejs", {
+            links: posts_index,
+            posts: posts,
+        });
+    } catch (err) {
+        res.status(500).send("Failed to load posts: " + err.message);
+    } finally {
+        sql.close();
+    }
   });
-  app.get("/privacy-policy", (req, res) => {
+
+app.get("/privacy-policy", (req, res) => {
     res.render("rodo.ejs", {
         links: posts_rodo
     });
 });
 
   app.post("/submit", async (req,res)=>{
-    const { title, text } = req.body;
-    const userID = req.session.userID;
+    const { postTitle, content } = req.body;
+    const userID = /*248659;*/ req.session.userID;
     const date = new Date();
     if (!userID) {
         return res.status(401).send("Unauthorized: User not logged in.");
@@ -91,8 +106,8 @@ app.get("/posts", (req, res) => {
         let pool = await sql.connect(dbConfig);
         const result = await pool.request()
             .input('UserID', sql.Int, userID)
-            .input('Title', sql.NVarChar(50), title)
-            .input('Content', sql.NVarChar(1000), text)
+            .input('Title', sql.NVarChar(50), postTitle)
+            .input('Content', sql.NVarChar(1000), content)
             .input('Date', sql.DateTimeOffset, date)
             .output('Result', sql.Int)
             .execute('AddPost');
@@ -108,6 +123,12 @@ app.get("/posts", (req, res) => {
     } catch (err) {
         res.status(500).send("Failed to submit post: " + err.message);
     } finally {
+        /*let result = await pool.request().execute('GetAllPosts');
+        posts = result.recordset;
+        res.render("posts.ejs", {
+            links: posts_index,
+            posts: posts,
+        });*/
         sql.close();
     }
   });
@@ -196,6 +217,7 @@ app.get("/map", (req, res) => {
 
 app.post("/login", async (req, res) => {
     const { uname, psw } = req.body;
+    req.session.userID = null;
     try {
         let pool = await sql.connect(dbConfig);
         let result = await pool.request()
@@ -205,18 +227,30 @@ app.post("/login", async (req, res) => {
                         .execute('UserLogInValidation');
 
         const loginResult = result.output.Result;
+        let message;
         if (loginResult === 0) {
-            res.send("Login Successful");
+            req.session.userID = uname; // Store the user ID in the session
+            message = "Login Successful";
         } else if (loginResult === 1) {
-            res.send("User does not exist");
+            message = "User does not exist";
         } else if (loginResult === 2) {
-            res.send("Incorrect password");
+            message = "Incorrect password";
         } else {
-            res.send("Unexpected result");
+            message = "Unexpected result";
         }
-
+        res.send(`
+            <script>
+                alert("${message}");
+                window.location.href = "/";
+            </script>
+        `);
     } catch (err) {
-        res.status(500).send("Failed to connect to the database: " + err.message);
+        res.send(`
+            <script>
+                alert("Failed to connect to the database: ${err.message}");
+                window.location.href = "/";
+            </script>
+        `);
     } finally {
         sql.close();
     }

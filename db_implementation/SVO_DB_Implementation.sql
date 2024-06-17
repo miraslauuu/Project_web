@@ -125,8 +125,6 @@ BEGIN
 	Date DATETIMEOFFSET
 )
 END
-
-
 GO 
 
 -- Table Calendars
@@ -425,8 +423,12 @@ BEGIN
 
     -- Insert post into the Posts table
     BEGIN TRY
+		DECLARE @user AS INT 
+		SET @user = (SELECT TOP 1 UserID FROM Users WHERE UniversityID = @UserID)
+		print @user
+		print @userId
         INSERT INTO Posts (UserID, Title, Content, Date)
-        VALUES (@UserID, @Title, @Content, @Date);
+        VALUES (@user, @Title, @Content, @Date);
         SET @Result = 0; -- Success
     END TRY
     BEGIN CATCH
@@ -515,3 +517,13 @@ BEGIN
     END CATCH
 END
 GO
+
+DECLARE @DATE AS DATETIMEOFFSET = GETDATE()
+DECLARE @RES AS INT
+
+--EXEC AddPost 248659, 'Test', 'TIWANNAKMSks', @DATE, @RES OUTPUT
+--EXEC UpdatePost 1020, 'JAJHASHHDHF', @DATE, @RES OUTPUT
+EXEC DeletePost 1020, @RES OUTPUT
+PRINT @RES
+
+SELECT * FROM Posts
