@@ -114,7 +114,7 @@ GO
 
 -- Table Posts
 
-
+DROP TABLE Posts
 IF NOT EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Posts') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
 BEGIN 
 	CREATE TABLE Posts(
@@ -444,13 +444,16 @@ BEGIN
 
     BEGIN
         SELECT 
-            PostID, 
-            UserID, 
-            Title, 
-            Content, 
-            Date 
-        FROM Posts 
-        ORDER BY Date DESC;
+            Posts.PostID, 
+            Posts.UserID, 
+            Posts.Title, 
+            Posts.Content, 
+            Posts.Date,
+            Users.FirstName,
+            Users.LastName
+        FROM Posts
+        INNER JOIN Users ON Posts.UserID = Users.UserID
+        ORDER BY Posts.Date DESC;
     END
 END
 GO
@@ -458,32 +461,37 @@ GO
 
 CREATE OR ALTER PROCEDURE DeletePost
     @PostID INT,
+    @UserID INT,
     @Result INT OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Delete post from the Posts table
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Posts WHERE PostID = @PostID)
+		DECLARE @user AS INT 
+		SET @user = (SELECT TOP 1 UserID FROM Users WHERE UniversityID = @UserID)
+		print @user
+        IF EXISTS (SELECT 1 FROM Posts WHERE PostID = @PostID AND UserID = @user)
         BEGIN
-            DELETE FROM Posts WHERE PostID = @PostID;
+            DELETE FROM Posts WHERE PostID = @PostID AND UserID = @user;
             SET @Result = 0; -- Success
         END
         ELSE
         BEGIN
-            SET @Result = 1; -- Post does not exist
+            SET @Result = 1; -- Post does not exist or user is not the author
         END
     END TRY
     BEGIN CATCH
-        SET @Result = 2; -- Failure
+        SET @Result = 1; -- Failure
     END CATCH
 END
 GO
 
 
+
 CREATE OR ALTER PROCEDURE UpdatePost
     @PostID INT,
+    @UserID INT,
     @Content NVARCHAR(1000),
     @Date DATETIMEOFFSET,
     @Result INT OUTPUT
@@ -502,14 +510,17 @@ BEGIN
 
     -- Update post content in the Posts table
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Posts WHERE PostID = @PostID)
+		DECLARE @user AS INT 
+		SET @user = (SELECT TOP 1 UserID FROM Users WHERE UniversityID = @UserID)
+		print @user
+        IF EXISTS (SELECT 1 FROM Posts WHERE PostID = @PostID AND UserID = @user)
         BEGIN
-            UPDATE Posts SET Content = @Content, Date = @Date WHERE PostID = @PostID;
+            UPDATE Posts SET Content = @Content, Date = @Date WHERE PostID = @PostID AND UserID = @user;
             SET @Result = 0; -- Success
         END
         ELSE
         BEGIN
-            SET @Result = 1; -- Post does not exist
+            SET @Result = 1; -- Post does not exist or user is not the author
         END
     END TRY
     BEGIN CATCH
@@ -518,12 +529,15 @@ BEGIN
 END
 GO
 
+
 DECLARE @DATE AS DATETIMEOFFSET = GETDATE()
 DECLARE @RES AS INT
 
 --EXEC AddPost 248659, 'Test', 'TIWANNAKMSks', @DATE, @RES OUTPUT
 --EXEC UpdatePost 1020, 'JAJHASHHDHF', @DATE, @RES OUTPUT
-EXEC DeletePost 1020, @RES OUTPUT
+--EXEC DeletePost 1020, @RES OUTPUT
 PRINT @RES
 
 SELECT * FROM Posts
+
+EXEC GetAllPosts

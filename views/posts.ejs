@@ -1,94 +1,77 @@
 <%- include("partials/header.ejs") %>
 <link rel="stylesheet" href="/styles/posts.css">
 <section id="me">
-      <section id="new_post_section" >
-      <div class="form_container_post">
-          <i class="fa-solid fa-xmark form_close close_button"></i>
-          <div class="form login_form">
-              <form id="postForm"method="POST" action= "/submit">
-                  <h2>Create a post</h2>
-                  <div class="input-box first">
-                      <input type="text" name="postTitle" required id="postTitle">
-                      <label for="postTitle">Title</label>
-                  </div>
-                  <textarea id="postContent" name="content"placeholder="Write your post" required></textarea>
-                  <button class="post_button" type="submit">Post</button>
-              </form>
-          </div>
-      </div>
+    <section id="new_post_section">
+        <div class="form_container_post">
+            <i class="fa-solid fa-xmark form_close close_button"></i>
+            <div class="form login_form">
+                <form id="postForm" method="POST" action="/submit">
+                    <h2>Create a post</h2>
+                    <div class="input-box first">
+                        <input type="text" name="postTitle" required id="postTitle">
+                        <label for="postTitle">Title</label>
+                    </div>
+                    <textarea id="postContent" name="content" placeholder="Write your post" required></textarea>
+                    <button class="post_button" type="submit">Post</button>
+                </form>
+            </div>
+        </div>
     </section>
     <section id="posts">
-      <div class="posts-header">
-        <div class="circle"></div>
-        <h1>Posts</h1>
-      </div>
-      <div class="post-container">
+        <div class="posts-header">
+            <div class="circle"></div>
+            <h1>Posts</h1>
+        </div>
+        <div class="post-container">
             <i class="fa-regular fa-circle-user"></i>
             <div class="new_post_click">
-              <a id="postTextarea" >New post</input>
+                <a id="postTextarea">New post</a>
             </div>
-      </div>
-      <!-- <div id="postModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>New Post</h2>
-            <form id="postForm" action="/submit" method="POST" class="flex-container">
-                <input type="text" id="postTitle" name="text" placeholder="Title" required>
-                <textarea id="postContent" name="content" class="feedback-input" placeholder="Write your post" required></textarea>
-                <input type="submit" value="Submit">
-            </form>
         </div>
-      </div>  -->
-      <div class="comments">
-        <% posts.forEach((post,index) => { %>
-          <section id="update_post_section" >
-            <div class="form_container_post_update">
-                <i class="fa-solid fa-xmark form_close close_button_update"></i>
-                <div class="form login_form">
-                  <!-- <form action="/comment/<%= index %>?_method=PATCH" method="post">
-                    <input type="hidden" name="_method" value="PATCH">
-                    <input type="text" name="updatedComment" placeholder="Update comment">
-                    <button type="submit" class="b">Update</button>
-                  </form> -->
-                    <form id="postForm" action="/comment/<%= index %>?_method=PATCH" method="post">
-                        <h2>Update post</h2>
-                        <div class="input-box first">
-                          <input type="hidden" name="_method" value="PATCH">
-                          <input type="text" name="updatedComment" required id="postTitle">
-                          <label for="updatedComment">Update post</label>
+        <div class="comments">
+            <% posts.forEach((post) => { %>
+            <section id="update_post_section">
+                <div class="form_container_post_update">
+                    <i class="fa-solid fa-xmark form_close close_button_update"></i>
+                    <div class="form login_form">
+                        <form id="postForm" action="/comment/<%= post.PostID %>?_method=PATCH" method="post">
+                            <h2>Update post</h2>
+                            <div class="input-box first">
+                                <input type="hidden" name="_method" value="PATCH">
+                                <input type="text" name="updatedComment" required id="postTitle">
+                                <label for="updatedComment">Update post</label>
+                            </div>
+                            <textarea id="postContent" name="content" placeholder="Update content of your post" required></textarea>
+                            <button type="submit" class="b">Update</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+            <div class="comment">
+                <div class="container_elips">
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                    <div class="frame1" id="frame1">
+                        <div class="info update">
+                            <i class="fa-solid fa-pen"></i>
+                            <span>Update</span>
                         </div>
-                        <textarea id="postContent" name="content"placeholder="Update content of your post" required></textarea>
-                        <button type="submit" class="b">Update</button>
-                    </form>
+                        <div class="info delete">
+                            <i class="fa-solid fa-trash"></i>
+                            <form action="/comment/<%= post.PostID %>?_method=DELETE" method="post">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="delete_button">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <p class="posted">Posted by user: <%= post.FirstName %> <%= post.LastName %> on <%= new Date(post.Date).toLocaleString() %></p>
+                <h2 class="title"><%= post.Title %></h2>
+                <div class="post_text_box" onclick="toggleText(this)">
+                    <p class="post_text"><%= post.Content %></p>
                 </div>
             </div>
-          </section>
-          <div class="comment">
-            <div class="container_elips">
-              <i class="fa-solid fa-ellipsis-vertical" ></i>
-              <div class="frame1" id="frame1">
-                <div class="info update" >
-                  <i class="fa-solid fa-pen"></i>
-                  <span>Update</span>
-                </div>
-                <div class="info delete">
-                  <i class="fa-solid fa-trash"></i>
-                  <form action="/comment/<%= index %>?_method=DELETE" method="post"  >
-                    <input type="hidden" name="_method" value="DELETE">
-                    <button type="submit" class="delete_button">Delete</button>
-                  </form>
-                </div>
-              </div>
-            </div>
-            <p class="posted">Posted by <%= post.username %> <%= post.date %> </p>
-            <h2 class="title"><%= post.title%></h2>
-            <div class="post_text_box"  onclick="toggleText(this)">
-              <p class="post_text">Lorem ips Lorempsur sim consectetur adipiscing elit. Phasellus eleifend turpis id felis ultrices, a dapibus elit tincidunt. Donec lacinia justo eu porttitor aliquam. Phasellus placerat lobortis mauris. Fusce malesuaLorem ips Lorempsur sim consectetur adipiscing elit. Phasellus eleifend turpis id felis ultrices, a dapibus elit tincidunt. Donec lacinia justo eu porttitor aliquam. Phasellus placerat lobortis mauris. Fusce malLorem ips Lorempsur sim consectetur adipiscing elit. Phasellus eleifend turpis id felis ultrices, a dapibus elit tincidunt. Donec lacinia justo eu porttitor aliquam. Phasellus placerat lobortis mauris. Fusce malesuada nisi ac mauris rutrum dictum. Duis feugiat sollicitudin diam sit amet meet lustiesuada nisi ac mauris rutrum dictum. Duis feugiat sollicitudin diam sit amet meet lustida nisi ac mauris rutrum dictum. Duis feugiat sollicitudin diam sit amet meet lustiLorem ips Lorempsur sim consectetur adipiscing elit. Phasellus eleifend turpis id felis ultrices, a dapibus elit tincidunt. Donec lacinia justo eu porttitor aliquam. Phasellus placerat lobortis mauris. Fusce malesuada nisi ac mauris rutrum dictum. Duis feugiat sollicitudin diam sit amet meet lustibulum molestie tellus ligula, id accumsan nisl tincidunt tempus. Vivamus in ultricies est, a placerat neque. <%= post.content%></p>
-            </div>
-          </div>
-        <% }); %>
-      </div>
+            <% }); %>
+        </div>
     </section>
 </section>
-
 <%- include("partials/footer.ejs") %>

@@ -69,11 +69,6 @@ app.get("/", (req, res) => {
 let posts=[];
 
 app.get("/posts", async (req, res) => {
-    /*
-    res.render("posts.ejs", {
-      links: posts_posts,
-      posts: posts,
-    });*/
     try {
         let pool = await sql.connect(dbConfig);
         let result = await pool.request().execute('GetAllPosts');
@@ -97,7 +92,7 @@ app.get("/privacy-policy", (req, res) => {
 
   app.post("/submit", async (req,res)=>{
     const { postTitle, content } = req.body;
-    const userID = /*248659;*/ req.session.userID;
+    const userID = req.session.userID;
     const date = new Date();
     if (!userID) {
         return res.status(401).send("Unauthorized: User not logged in.");
@@ -139,9 +134,11 @@ app.get("/privacy-policy", (req, res) => {
     const { updatedComment } = req.body;
     const userID = req.session.userID;
     const date = new Date();
+    
     if (!userID) {
         return res.status(401).send("Unauthorized: User not logged in.");
     }
+
     try {
         let pool = await sql.connect(dbConfig);
         const result = await pool.request()
@@ -170,12 +167,15 @@ app.get("/privacy-policy", (req, res) => {
 });
 
 
+
 app.delete('/comment/:id', async (req, res) => {
     const { id } = req.params;
     const userID = req.session.userID;
+
     if (!userID) {
         return res.status(401).send("Unauthorized: User not logged in.");
     }
+
     try {
         let pool = await sql.connect(dbConfig);
         const result = await pool.request()
@@ -183,6 +183,7 @@ app.delete('/comment/:id', async (req, res) => {
             .input('UserID', sql.Int, userID)
             .output('Result', sql.Int)
             .execute('DeletePost');
+        
         const resultCode = result.output.Result;
         if (resultCode === 0) {
             res.redirect("/posts");
@@ -197,6 +198,7 @@ app.delete('/comment/:id', async (req, res) => {
         sql.close();
     }
 });
+
 
 
 app.get("/plan", (req, res) => {
