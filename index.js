@@ -73,6 +73,14 @@ app.get("/map", (req, res) => {
 // here handling login procedure
 // const sql = require('mssql');
 
+function isAuthenticated(req, res, next) {   //bez zalogowania nie będą dostępne posts i plan
+    if (req.session.userID) {
+        return next();
+    } else {
+        res.redirect('/login'); 
+    }
+}
+
 app.post("/login", async (req, res) => {
    const { uname, psw } = req.body;
    try {
