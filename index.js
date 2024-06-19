@@ -151,3 +151,26 @@ app.post("/register", async (req, res) => {
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
+
+//adding events to database 
+async function addEvent(userID, calendarID, date, type, title, description) {
+    try {
+        let pool = await sql.connect(dbConfig);
+        let result = await pool.request()
+            .input('UserID', sql.Int, userID)
+            .input('CalendarID', sql.Int, calendarID)
+            .input('Date', sql.DateTimeOffset, date)
+            .input('Type', sql.Bit, type)
+            .input('Title', sql.NVarChar(30), title)
+            .input('Description', sql.NVarChar(100), description)
+            .execute('AddEvent');
+
+        console.log(result.recordset[0].Message);
+    } catch (err) {
+        console.error('SQL error', err);
+    } finally {
+        sql.close();
+    }
+}
+
+addEvent(1, 1, '2024-06-17T12:00:00Z', 0, 'Kolos', 'Vey important!!!!');
