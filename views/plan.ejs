@@ -6,12 +6,11 @@
             <div class="underline"></div>
             <div id="viewOptions" class="button-container">
                 <button id="monthlyViewButton" class="plan-button"><i class="fa-regular fa-calendar-check plan-icon"></i>Monthly calendar</button>
-                <button id="weeklyViewButton" class="plan-button"><i class="fa-regular fa-calendar plan-icon"></i>Weekly calendar</button>
             </div>
-            <div class="underline2"></div>
         </div>
         <div id="monthDisplayContainer">
             <div id="monthDisplay"></div>
+            <button id="todayButton" class="button_month_display">&#10084; Today</button>
             <button id="backButton" class="button_month_display">Back</button>
             <button id="nextButton" class="button_month_display">Next</button>
         </div>
@@ -31,7 +30,7 @@
         <h2>Events for <span id="selectedDate"></span></h2>
         <div id="eventsList"></div>
         <button id="addEventButton" class="button_modal">Add Event</button>
-        <button id="closeDayEventsModal"class="button_modal">Close</button>
+        <button id="closeDayEventsModal" class="button_modal">Close</button>
     </div>
 
     <div id="newEventModal" class="modal">
@@ -41,7 +40,7 @@
         <input id="eventEndTimeInput" type="time" placeholder="End Time" />
         <textarea id="eventDescriptionInput" placeholder="Description"></textarea>
         <button id="saveButton" class="button_month_display">Save</button>
-        <button id="cancelButton"class="button_month_display">Cancel</button>
+        <button id="cancelButton" class="button_month_display">Cancel</button>
     </div>
 
     <div id="eventDetailsModal" class="modal">
