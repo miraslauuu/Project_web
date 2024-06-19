@@ -1,5 +1,81 @@
 <%- include("partials/header.ejs") %>
+<link rel="stylesheet" href="/styles/posts.css">
 <section id="me">
-    
+    <section id="new_post_section">
+        <div class="form_container_post">
+            <i class="fa-solid fa-xmark form_close close_button"></i>
+            <div class="form login_form">
+                <form id="postForm" method="POST" action="/submit">
+                    <h2>Create a post</h2>
+                    <div class="input-box first">
+                        <input type="text" name="postTitle" required id="postTitle">
+                        <label for="postTitle">Title</label>
+                    </div>
+                    <textarea id="postContent" name="content" placeholder="Write your post" required></textarea>
+                    <button class="post_button" type="submit">Post</button>
+                </form>
+            </div>
+        </div>
+    </section>
+    <section id="posts">
+        <div class="posts-header">
+            <div class="circle"></div>
+            <h1>Posts</h1>
+        </div>
+        <div class="post-container">
+            <i class="fa-regular fa-circle-user"></i>
+            <div class="new_post_click">
+                <a id="postTextarea">New post</a>
+            </div>
+        </div>
+        <div class="comments">
+          <% posts.forEach((post) => { %>
+            <section id="update_post_section">
+                <div class="form_container_post_update">
+                    <i class="fa-solid fa-xmark form_close close_button_update"></i>
+                    <div class="form login_form">
+                        <form id="postForm" action="/comment/<%= post.PostID %>?_method=PATCH" method="post">
+                            <h2>Update post</h2>
+                            <div class="input-box first">
+                                <input type="hidden" name="_method" value="PATCH">
+                                <input type="text" name="updatedTitle" required id="updatedTitle" value="<%= post.Title %>">
+                                <label for="updatedTitle">Update Title</label>
+                            </div>
+                            <!-- <div class="input-box first">
+                                <input type="text" name="updatedComment" required id="updatedComment" value="<%= post.Content %>">
+                                <label for="updatedComment">Update Content</label>
+                            </div> -->
+                            <textarea name="updatedComment" id="updatedComment"  placeholder="Update content of your post"  value="<%= post.Content %>" required></textarea>
+                            <button type="submit" class="b">Update</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+            <div class="comment">
+                <div class="container_elips">
+                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                    <div class="frame1" id="frame1">
+                        <div class="info update">
+                            <i class="fa-solid fa-pen"></i>
+                            <span>Update</span>
+                        </div>
+                        <div class="info delete">
+                            <i class="fa-solid fa-trash"></i>
+                            <form action="/comment/<%= post.PostID %>?_method=DELETE" method="post">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="delete_button">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <p class="posted">Posted by user: <%= post.FirstName %> <%= post.LastName %> on <%= new Date(post.Date).toLocaleString() %></p>
+                <h2 class="title"><%= post.Title %></h2>
+                <div class="post_text_box" onclick="toggleText(this)">
+                    <p class="post_text"><%= post.Content %></p>
+                </div>
+            </div>
+            <% }); %>            
+        </div>
+    </section>
 </section>
 <%- include("partials/footer.ejs") %>

@@ -40,8 +40,8 @@ EXPIRY_DATE = '2026-01-01';
 
 -- Create symmetric key to encrypt data
 
--- tutaj b�dzie b��d jak spr�bujecie odkodowa� i nie macie 
--- odpowiedniego permission, w takim razie pisa� do autora kodu
+-- tutaj bEdzie błąd jak spróbujecie odkodować i nie macie 
+-- odpowiedniego permission, w takim razie pisać do autora kodu
 
 
 CREATE SYMMETRIC KEY SVOManagementSymmetricKey
@@ -114,19 +114,17 @@ GO
 
 -- Table Posts
 
-
+DROP TABLE Posts
 IF NOT EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Posts') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
 BEGIN 
 	CREATE TABLE Posts(
 	PostID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
 	UserID INT  NOT NULL, FOREIGN KEY (UserID) REFERENCES Users(UserID),
 	Title VARCHAR(50),
-	Content VARCHAR(1000),  --dozwolona d�ugo�� postu
+	Content VARCHAR(1000),  --dozwolona długość postu
 	Date DATETIMEOFFSET
 )
 END
-
-
 GO 
 
 -- Table Calendars
@@ -136,7 +134,7 @@ BEGIN
 	CREATE TABLE Calendars(
 	CalendarID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
 	UserID INT NOT NULL UNIQUE, FOREIGN KEY (UserID) REFERENCES Users(UserID),
-	Type BIT        -- tutaj 0 = na mies�c, 1 = na tydzie�
+	Type BIT        -- tutaj 0 = na mies�c, 1 = na tydzień
 )
 END
 
@@ -266,8 +264,8 @@ IF NOT EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Messages'
 BEGIN 
 	CREATE TABLE Messages(
 	MessageID INT PRIMARY KEY IDENTITY (1, 1) NOT NULL,
-	SentByUserID INT NOT NULL, FOREIGN KEY (SentByUserID) REFERENCES Users(UserID),  --id tego co wys�al wiadomo��
-	SentToUserID INT NOT NULL, FOREIGN KEY (SentToUserID) REFERENCES Users(UserID),  --id tego komu wys�ali 
+	SentByUserID INT NOT NULL, FOREIGN KEY (SentByUserID) REFERENCES Users(UserID),  --id tego co wysłal wiadomość
+	SentToUserID INT NOT NULL, FOREIGN KEY (SentToUserID) REFERENCES Users(UserID),  --id tego komu wysłali 
 	Date DATETIMEOFFSET,
 	Content VARCHAR(100)
 )
@@ -282,6 +280,39 @@ END
 GO
 --drop procedure HashUserPassword
 go
+
+-- procedure to check if user input is secure
+CREATE OR ALTER PROCEDURE CheckInput
+	@Input VARCHAR(255),
+	@Result INT OUTPUT
+AS
+BEGIN
+
+SET @Result = 0;
+
+    -- Check for common SQL injection patterns
+    IF @Input LIKE '%--%' OR      -- Inline comment
+       @Input LIKE '%/*%' OR      -- Block comment start
+       @Input LIKE '%*/%' OR      -- Block comment end
+       @Input LIKE '%''%' OR      -- Single quote
+       @Input LIKE '%"%' OR       -- Double quote
+       @Input LIKE '%xp_%' OR     -- Extended procedure
+       @Input LIKE '%sp_%' OR     -- System stored procedure
+       @Input LIKE '%select%' OR  -- SQL keywords (basic)
+       @Input LIKE '%insert%' OR
+       @Input LIKE '%update%' OR
+       @Input LIKE '%delete%' OR
+       @Input LIKE '%drop%' OR
+       @Input LIKE '%alter%' OR
+       @Input LIKE '%exec%' OR
+       @Input LIKE '%union%'      -- SQL keywords (advanced)
+    BEGIN
+        SET @Result = 1;
+    END
+END
+ 
+
+GO
 CREATE OR ALTER PROCEDURE HashUserPassword
 	@Password NVARCHAR(255),
 	@Hashed_password BINARY(64) OUTPUT
@@ -291,6 +322,7 @@ BEGIN
 	SET NOCOUNT ON;
     SET @Hashed_password = HASHBYTES('SHA2_256', @Password);
 END
+
 GO
 
 CREATE OR ALTER PROCEDURE CheckIfUserExists   -- if user exists returns 1, else 0
@@ -313,12 +345,7 @@ BEGIN
 END
 
 GO
-/*Select * from Users
-go
-delete from users 
-where users.UserID = 1
-drop procedure UserRegistration*/
-go
+
 
 CREATE OR ALTER PROCEDURE UserRegistration
 	@UserUniversityID int,
@@ -326,10 +353,23 @@ CREATE OR ALTER PROCEDURE UserRegistration
 	@UserLastName nvarchar(30),
 	@UserPassword nvarchar(255),
 	@Result int OUTPUT
-	WITH ENCRYPTION
 AS 
 BEGIN
-	DECLARE @UserExistsError int;
+	DECLARE @SafeInput INT
+	EXEC CheckInput @UserFirstName, @SafeInput OUTPUT
+	IF @SafeInput = 1
+	BEGIN
+		SET @Result = 2
+		RETURN
+	END
+	EXEC CheckInput @UserLastName, @SafeInput OUTPUT
+	IF @SafeInput = 1
+	BEGIN
+		SET @Result = 2
+		RETURN
+	END
+
+	DECLARE @UserExistsError INT;
 	EXEC @UserExistsError = CheckIfUserExists @UserUniversityID;
 	IF @UserExistsError = 1
 		BEGIN
@@ -350,24 +390,17 @@ BEGIN
 	END
 	ELSE 
 	BEGIN
-		SET @Result = 0; --failed
+		SET @Result = 2; --failed
 	END
 
 END
 GO
 
---drop procedure UserLogInValidation;
-
---select * from users
-
-go
-
-
-
 CREATE OR ALTER PROCEDURE UserLogInValidation
     @UserUniversityID int,
     @UserPassword nvarchar(255),
     @Result int OUTPUT
+	WITH ENCRYPTION
 AS
 BEGIN
     DECLARE @UserDontExistsError int;
@@ -400,6 +433,16 @@ CREATE OR ALTER PROCEDURE GetCoordinates
     @Longitude FLOAT OUTPUT
 AS
 BEGIN
+	
+	DECLARE @SafeInput INT
+	EXEC CheckInput @Name, @SafeInput OUTPUT
+	IF @SafeInput = 1
+	BEGIN
+		SET @Latitude = 0
+		SET @Longitude = 0
+		RETURN
+	END
+
     IF EXISTS (SELECT Latitude, Longitude FROM Coordinates WHERE Name = @Name)
     BEGIN
         PRINT 'Coordinates found'
@@ -433,9 +476,150 @@ PRINT @LON*/
 
 GO 
 
---CREATE OR ALTER PROCEDURE CheckInput
+CREATE OR ALTER PROCEDURE AddPost
+    @UserID INT,
+    @Title NVARCHAR(50),
+    @Content NVARCHAR(1000),
+    @Date DATETIMEOFFSET,
+    @Result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
 
-/*DECLARE @RES INT;  -- Declaration without initialization
-EXEC @RES = UserLogInValidation 123, 'haslo';
+    -- Check for SQL injection in Title and Content
+    DECLARE @SafeInput INT;
+    EXEC CheckInput @Title, @SafeInput OUTPUT;
+    IF @SafeInput = 1
+    BEGIN
+        SET @Result = 2; -- Unsafe input detected
+        RETURN;
+    END
 
-PRINT CAST(@RES AS VARCHAR(10))*/
+    EXEC CheckInput @Content, @SafeInput OUTPUT;
+    IF @SafeInput = 1
+    BEGIN
+        SET @Result = 2; -- Unsafe input detected
+        RETURN;
+    END
+
+    -- Insert post into the Posts table
+    BEGIN TRY
+		DECLARE @user AS INT 
+		SET @user = (SELECT TOP 1 UserID FROM Users WHERE UniversityID = @UserID)
+		print @user
+		print @userId
+        INSERT INTO Posts (UserID, Title, Content, Date)
+        VALUES (@user, @Title, @Content, @Date);
+        SET @Result = 0; -- Success
+    END TRY
+    BEGIN CATCH
+        SET @Result = 1; -- Failure
+    END CATCH
+END
+GO
+
+CREATE OR ALTER PROCEDURE GetAllPosts
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN
+        SELECT 
+            Posts.PostID, 
+            Posts.UserID, 
+            Posts.Title, 
+            Posts.Content, 
+            Posts.Date,
+            Users.FirstName,
+            Users.LastName
+        FROM Posts
+        INNER JOIN Users ON Posts.UserID = Users.UserID
+        ORDER BY Posts.Date DESC;
+    END
+END
+GO
+
+
+CREATE OR ALTER PROCEDURE DeletePost
+    @PostID INT,
+    @UserID INT,
+    @Result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    BEGIN TRY
+		DECLARE @user AS INT 
+		SET @user = (SELECT TOP 1 UserID FROM Users WHERE UniversityID = @UserID)
+		print @user
+        IF EXISTS (SELECT 1 FROM Posts WHERE PostID = @PostID AND UserID = @user)
+        BEGIN
+            DELETE FROM Posts WHERE PostID = @PostID AND UserID = @user;
+            SET @Result = 0; -- Success
+        END
+        ELSE
+        BEGIN
+            SET @Result = 1; -- Post does not exist or user is not the author
+        END
+    END TRY
+    BEGIN CATCH
+        SET @Result = 1; -- Failure
+    END CATCH
+END
+GO
+
+
+
+CREATE OR ALTER PROCEDURE UpdatePost
+    @PostID INT,
+    @UserID INT,
+	@Title nvarchar(50),
+    @Content NVARCHAR(1000),
+    @Date DATETIMEOFFSET,
+    @Result INT OUTPUT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    -- Check for SQL injection in Content
+    DECLARE @SafeInput INT;
+    EXEC CheckInput @Content, @SafeInput OUTPUT;
+    IF @SafeInput = 1
+    BEGIN
+        SET @Result = 2; -- Unsafe input detected
+        RETURN;
+    END
+
+    -- Update post content in the Posts table
+    BEGIN TRY
+		DECLARE @user AS INT 
+		SET @user = (SELECT TOP 1 UserID FROM Users WHERE UniversityID = @UserID)
+		print @user
+        IF EXISTS (SELECT 1 FROM Posts WHERE PostID = @PostID AND UserID = @user)
+        BEGIN
+            UPDATE Posts SET Content = @Content, Date = @Date, Title = @Title WHERE PostID = @PostID AND UserID = @user;
+            SET @Result = 0; -- Success
+        END
+        ELSE
+        BEGIN
+            SET @Result = 1; -- Post does not exist or user is not the author
+        END
+    END TRY
+    BEGIN CATCH
+        SET @Result = 1; -- Failure
+    END CATCH
+END
+GO
+
+
+DECLARE @DATE AS DATETIMEOFFSET = GETDATE()
+DECLARE @RES AS INT
+
+--EXEC AddPost 248659, 'Test', 'TIWANNAKMSks', @DATE, @RES OUTPUT
+--EXEC UpdatePost 1020, 'JAJHASHHDHF', @DATE, @RES OUTPUT
+--EXEC DeletePost 1020, @RES OUTPUT
+PRINT @RES
+
+SELECT * FROM Posts
+
+EXEC GetAllPosts

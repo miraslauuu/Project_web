@@ -1,6 +1,8 @@
 import express from "express";
 import bodyParser from "body-parser";
+import methodOverride from "method-override";
 import sql from "mssql";
+import session from "express-session";
 
 const dbConfig = {
    server: "LAPTOP-BJSNAIAH", 
@@ -18,6 +20,16 @@ const port = 3000;
 
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(methodOverride('_method'));
+app.use(bodyParser.json());
+
+// Konfiguracja sesji
+app.use(session({
+    secret: 'your_secret_key', // Użyj silnego klucza sekretu
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false } // Ustaw na true, jeśli używasz HTTPS
+}));
 
 const posts_index = [
    {href: '/', id:'home_id',class:'active',text:'Home'},
@@ -43,17 +55,152 @@ const posts_map = [
    {href: '/plan', id:'plan_id',class:'disable',text:'Plan' },
    {href: '/map', id:'map_id',class:'active',text:'Map'},
 ]
+const posts_rodo = [
+    {href: '/', id:'home_id',class:'disable',text:'Home'},
+    {href: '/posts', id:'posts_id',class:'disable',text:'Posts' },
+    {href: '/plan', id:'plan_id',class:'disable',text:'Plan' },
+    {href: '/map', id:'map_id',class:'disable',text:'Map'},
+]
 app.get("/", (req, res) => {
    res.render("index.ejs", {
        links: posts_index
    });
 });
+let posts=[];
 
-app.get("/posts", (req, res) => {
-   res.render("posts.ejs", {
-       links: posts_posts
-   });
+app.get("/posts", async (req, res) => {
+    try {
+        let pool = await sql.connect(dbConfig);
+        let result = await pool.request().execute('GetAllPosts');
+        posts = result.recordset;
+        res.render("posts.ejs", {
+            links: posts_index,
+            posts: posts,
+        });
+    } catch (err) {
+        res.status(500).send("Failed to load posts: " + err.message);
+    } finally {
+        sql.close();
+    }
+  });
+
+app.get("/privacy-policy", (req, res) => {
+    res.render("rodo.ejs", {
+        links: posts_rodo
+    });
 });
+
+  app.post("/submit", async (req,res)=>{
+    const { postTitle, content } = req.body;
+    const userID = req.session.userID;
+    const date = new Date();
+    if (!userID) {
+        return res.status(401).send("Unauthorized: User not logged in.");
+    }
+    try {
+        let pool = await sql.connect(dbConfig);
+        const result = await pool.request()
+            .input('UserID', sql.Int, userID)
+            .input('Title', sql.NVarChar(50), postTitle)
+            .input('Content', sql.NVarChar(1000), content)
+            .input('Date', sql.DateTimeOffset, date)
+            .output('Result', sql.Int)
+            .execute('AddPost');
+
+        const resultCode = result.output.Result;
+        if (resultCode === 0) {
+            res.redirect("/posts");
+        } else if (resultCode === 2) {
+            res.status(400).send("Unsafe input detected.");
+        } else {
+            res.status(500).send("Failed to submit post.");
+        }
+    } catch (err) {
+        res.status(500).send("Failed to submit post: " + err.message);
+    } finally {
+        /*let result = await pool.request().execute('GetAllPosts');
+        posts = result.recordset;
+        res.render("posts.ejs", {
+            links: posts_index,
+            posts: posts,
+        });*/
+        sql.close();
+    }
+  });
+  
+
+  app.patch('/comment/:id', async (req, res) => {
+    const { id } = req.params;
+    const { updatedTitle, updatedComment } = req.body;
+    const userID = req.session.userID;
+    const date = new Date();
+    
+    if (!userID) {
+        return res.status(401).send("Unauthorized: User not logged in.");
+    }
+
+    try {
+        let pool = await sql.connect(dbConfig);
+        const result = await pool.request()
+            .input('PostID', sql.Int, id)
+            .input('UserID', sql.Int, userID)
+            .input('Title', sql.NVarChar(100), updatedTitle)
+            .input('Content', sql.NVarChar(1000), updatedComment)
+            .input('Date', sql.DateTimeOffset, date)
+            .output('Result', sql.Int)
+            .execute('UpdatePost');
+
+        const resultCode = result.output.Result;
+        if (resultCode === 0) {
+            res.redirect("/posts");
+        } else if (resultCode === 2) {
+            res.status(400).send("Unsafe input detected.");
+        } else if (resultCode === 1) {
+            res.status(404).send("Post not found or you are not the author.");
+        } else {
+            res.status(500).send("Failed to update post.");
+        }
+    } catch (err) {
+        res.status(500).send("Failed to update post: " + err.message);
+    } finally {
+        sql.close();
+    }
+});
+
+
+
+app.delete('/comment/:id', async (req, res) => {
+    const { id } = req.params;
+    const userID = req.session.userID;
+
+    if (!userID) {
+        return res.status(401).send("Unauthorized: User not logged in.");
+    }
+
+    try {
+        let pool = await sql.connect(dbConfig);
+        const result = await pool.request()
+            .input('PostID', sql.Int, id)
+            .input('UserID', sql.Int, userID)
+            .output('Result', sql.Int)
+            .execute('DeletePost');
+        
+        const resultCode = result.output.Result;
+        if (resultCode === 0) {
+            res.redirect("/posts");
+        } else if (resultCode === 1) {
+            res.status(404).send("Post not found or you are not the author.");
+        } else {
+            res.status(500).send("Failed to delete post.");
+        }
+    } catch (err) {
+        res.status(500).send("Failed to delete post: " + err.message);
+    } finally {
+        sql.close();
+    }
+});
+
+
 
 app.get("/plan", (req, res) => {
    res.render("plan.ejs", {
@@ -68,8 +215,6 @@ app.get("/map", (req, res) => {
 });
 
 
-
-
 // here handling login procedure
 // const sql = require('mssql');
 
@@ -82,31 +227,44 @@ function isAuthenticated(req, res, next) {   //bez zalogowania nie będą dostę
 }
 
 app.post("/login", async (req, res) => {
-   const { uname, psw } = req.body;
-   try {
-       let pool = await sql.connect(dbConfig);
-       let result = await pool.request()
-                       .input('UserUniversityID', sql.Int, uname)
-                       .input('UserPassword', sql.NVarChar(255), psw)
-                       .output('Result', sql.Int)
-                       .execute('UserLogInValidation');
+    const { uname, psw } = req.body;
+    req.session.userID = null;
+    try {
+        let pool = await sql.connect(dbConfig);
+        let result = await pool.request()
+                        .input('UserUniversityID', sql.Int, uname)
+                        .input('UserPassword', sql.NVarChar(255), psw)
+                        .output('Result', sql.Int)
+                        .execute('UserLogInValidation');
 
-       const loginResult = result.output.Result;
-       if (loginResult === 0) {
-           res.send("Login Successful");
-       } else if (loginResult === 1) {
-           res.send("User does not exist");
-       } else if (loginResult === 2) {
-           res.send("Incorrect password");
-       } else {
-           res.send("Unexpected result");
-       }
-
-   } catch (err) {
-       res.status(500).send("Failed to connect to the database: " + err.message);
-   } finally {
-       sql.close();
-   }
+        const loginResult = result.output.Result;
+        let message;
+        if (loginResult === 0) {
+            req.session.userID = uname; // Store the user ID in the session
+            message = "Login Successful";
+        } else if (loginResult === 1) {
+            message = "User does not exist";
+        } else if (loginResult === 2) {
+            message = "Incorrect password";
+        } else {
+            message = "Unexpected result";
+        }
+        res.send(`
+            <script>
+                alert("${message}");
+                window.location.href = "/";
+            </script>
+        `);
+    } catch (err) {
+        res.send(`
+            <script>
+                alert("Failed to connect to the database: ${err.message}");
+                window.location.href = "/";
+            </script>
+        `);
+    } finally {
+        sql.close();
+    }
 });
 
 // registration proces handling
