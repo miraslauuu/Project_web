@@ -19,21 +19,19 @@ const eventDetailsDescription = document.getElementById('eventDetailsDescription
 const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 const monthlyViewButton = document.getElementById('monthlyViewButton');
-const weeklyViewButton = document.getElementById('weeklyViewButton');
 
 document.getElementById('monthlyViewButton').addEventListener('click', () => {
     setActiveButton(monthlyViewButton);
     loadMonthlyView();
 });
 
-document.getElementById('weeklyViewButton').addEventListener('click', () => {
-    setActiveButton(weeklyViewButton);
-    loadWeeklyView();
+document.getElementById('todayButton').addEventListener('click', () => {
+    nav = 0;
+    loadMonthlyView();
 });
 
 function setActiveButton(button) {
     monthlyViewButton.classList.remove('active');
-    weeklyViewButton.classList.remove('active');
     button.classList.add('active');
 }
 
@@ -200,58 +198,6 @@ function loadMonthlyView() {
         }
 
         daySquare.addEventListener('click', () => openDayEventsModal(dayString));
-        calendar.appendChild(daySquare);
-    }
-}
-
-function loadWeeklyView() {
-    const dt = new Date();
-
-    const currentDayOfWeek = dt.getDay();
-    const currentDate = dt.getDate();
-    const currentMonth = dt.getMonth();
-    const currentYear = dt.getFullYear();
-
-    const startOfWeek = new Date(currentYear, currentMonth, currentDate - currentDayOfWeek);
-    const endOfWeek = new Date(currentYear, currentMonth, currentDate + (6 - currentDayOfWeek));
-
-    document.getElementById('monthDisplay').innerText = 
-        `${startOfWeek.toLocaleDateString('en-us', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-us', { month: 'short', day: 'numeric' })}`;
-
-    calendar.innerHTML = '';
-
-    for (let i = 0; i < 7; i++) {
-        const daySquare = document.createElement('div');
-        daySquare.classList.add('day');
-
-        const dayDate = new Date(startOfWeek);
-        dayDate.setDate(startOfWeek.getDate() + i);
-        const dayString = `${dayDate.getMonth() + 1}/${dayDate.getDate()}/${dayDate.getFullYear()}`;
-
-        daySquare.innerText = dayDate.getDate();
-
-        if (events[dayString]) {
-            const eventsToShow = events[dayString].slice(0, 2);
-            eventsToShow.forEach(event => {
-                const eventDiv = document.createElement('div');
-                eventDiv.classList.add('event');
-                eventDiv.innerText = event.title;
-                daySquare.appendChild(eventDiv);
-            });
-            if (events[dayString].length > 2) {
-                const moreEventsDiv = document.createElement('div');
-                moreEventsDiv.classList.add('event');
-                moreEventsDiv.innerText = `+ ${events[dayString].length - 2} more`;
-                daySquare.appendChild(moreEventsDiv);
-            }
-        }
-
-        if (i === currentDayOfWeek && nav === 0) {
-            daySquare.id = 'currentDay';
-        }
-
-        daySquare.addEventListener('click', () => openDayEventsModal(dayString));
-
         calendar.appendChild(daySquare);
     }
 }
