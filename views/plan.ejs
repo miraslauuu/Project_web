@@ -1,5 +1,57 @@
-<%- include("partials/header.ejs") %>
+<%- include("partials/plan_header.ejs") %>
 <section id="me">
-    
+    <div id="container">
+        <div id="header">
+            <h2 class="plan-title">PLAN</h2>
+            <div class="underline"></div>
+            <div id="viewOptions" class="button-container">
+                <button id="monthlyViewButton" class="plan-button"><i class="fa-regular fa-calendar-check plan-icon"></i>Monthly calendar</button>
+            </div>
+        </div>
+        <div id="monthDisplayContainer">
+            <div id="monthDisplay"></div>
+            <button id="todayButton" class="button_month_display">&#10084; Today</button>
+            <button id="backButton" class="button_month_display">Back</button>
+            <button id="nextButton" class="button_month_display">Next</button>
+        </div>
+        <div id="weekdays">
+            <div class="weekday">Sunday</div>
+            <div class="weekday">Monday</div>
+            <div class="weekday">Tuesday</div>
+            <div class="weekday">Wednesday</div>
+            <div class="weekday">Thursday</div>
+            <div class="weekday">Friday</div>
+            <div class="weekday">Saturday</div>
+        </div>
+        <div id="calendar"></div>
+    </div>
+
+    <div id="dayEventsModal" class="modal">
+        <h2>Events for <span id="selectedDate"></span></h2>
+        <div id="eventsList"></div>
+        <button id="addEventButton" class="button_modal">Add Event</button>
+        <button id="closeDayEventsModal" class="button_modal">Close</button>
+    </div>
+
+    <div id="newEventModal" class="modal">
+        <h2>New Event</h2>
+        <input id="eventTitleInput" placeholder="Event Title" />
+        <input id="eventStartTimeInput" type="time" placeholder="Start Time" />
+        <input id="eventEndTimeInput" type="time" placeholder="End Time" />
+        <textarea id="eventDescriptionInput" placeholder="Description"></textarea>
+        <button id="saveButton" class="button_month_display">Save</button>
+        <button id="cancelButton" class="button_month_display">Cancel</button>
+    </div>
+
+    <div id="eventDetailsModal" class="modal">
+        <h2>Event Details</h2>
+        <p id="eventDetailsTitle"></p>
+        <p id="eventDetailsTime"></p>
+        <p id="eventDetailsDescription"></p>
+        <button id="closeEventDetailsModal">Close</button>
+    </div>
+
+    <div id="modalBackDrop" class="modal-backdrop"></div>
+    <script src="script_plan.js"></script>
 </section>
 <%- include("partials/footer.ejs") %>

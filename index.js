@@ -305,42 +305,26 @@ app.post("/register", async (req, res) => {
    }
 });
 
+//adding events to database 
+async function addEvent(userID, calendarID, date, type, title, description) {
+    try {
+        let pool = await sql.connect(dbConfig);
+        let result = await pool.request()
+            .input('UserID', sql.Int, userID)
+            .input('CalendarID', sql.Int, calendarID)
+            .input('Date', sql.DateTimeOffset, date)
+            .input('Type', sql.Bit, type)
+            .input('Title', sql.NVarChar(30), title)
+            .input('Description', sql.NVarChar(100), description)
+            .execute('AddEvent');
 
-app.get("/coordinates", async (req, res) => { 
-   const { name } = req.query; 
-   try { 
-       let pool = await sql.connect(dbConfig); 
-       let result = await pool.request() 
-           .input('Name', sql.NVarChar(255), name) 
-           .output('Latitude', sql.Float) 
-           .output('Longitude', sql.Float) 
-           .execute('GetCoordinates'); 
-        
-       const latitude = result.output.Latitude; 
-       const longitude = result.output.Longitude; 
-        
-       console.log(`Latitude: ${latitude}, Longitude: ${longitude}`); // Debugging 
-       res.status(200).json({ Latitude: latitude, Longitude: longitude }); 
-   } catch (err) { 
-       console.error("Error fetching coordinates:", err); 
-       res.status(500).json({ error: "Failed to retrieve coordinates" }); 
-   } finally { 
-       sql.close(); 
-   } 
-}); 
-
-app.get("/building-names", async (req, res) => {
-   try {
-       let pool = await sql.connect(dbConfig);
-       let result = await pool.request().query('SELECT Name FROM Coordinates');
-       res.status(200).json(result.recordset);
-   } catch (err) {
-       console.error("Error fetching building names:", err);
-       res.status(500).json({ error: "Failed to retrieve building names" });
-   } finally {
-       sql.close();
-   }
-});
+        console.log(result.recordset[0].Message);
+    } catch (err) {
+        console.error('SQL error', err);
+    } finally {
+        sql.close();
+    }
+}
 
 app.listen(port, () => {
    console.log(`Server is running on port ${port}`);
