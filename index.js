@@ -147,11 +147,6 @@ app.post("/register", async (req, res) => {
     }
 });
 
-
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
-
 //adding events to database 
 async function addEvent(userID, calendarID, date, type, title, description) {
     try {
@@ -173,4 +168,10 @@ async function addEvent(userID, calendarID, date, type, title, description) {
     }
 }
 
-addEvent(1, 1, '2024-06-17T12:00:00Z', 0, 'Kolos', 'Vey important!!!!');
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
+
+
+
+//addEvent(1, 1, '2024-06-17T12:00:00Z', 0, 'Kolos', 'Vey important!!!!');
