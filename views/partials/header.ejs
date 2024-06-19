@@ -23,9 +23,15 @@
                 <% }) %>
             </ul>
             <div class="nav2">
-                <a class="login">
-                    <img src="/images/userImage.png" height="28px"width="28px" alt=""><p>Log in</p>
-                </a>
+                <% if (userID) { %>
+                    <a class="login">
+                        <img src="/images/userImage.png" height="28px" width="28px" alt=""><p><%= userID %></p>
+                    </a>
+                <% } else { %>
+                    <a class="login">
+                        <img src="/images/userImage.png" height="28px" width="28px" alt=""><p>Log in</p>
+                    </a>
+                <% } %>
             </div>
             <div class="toggle_btn">
                 <i class="fa-solid fa-bars"></i>
@@ -45,7 +51,11 @@
                     <a href="/map">Map</a>
                 </li>
                 <li class="login_1">
-                    <a class="login_dropdown"><i class="fa-regular fa-user"></i><p>Log in</p></a>
+                    <% if (userID) { %>
+                        <a class="login_dropdown"><i class="fa-regular fa-user"></i><p><%= userID %></p></a>
+                    <% } else { %>
+                        <a class="login_dropdown"><i class="fa-regular fa-user"></i><p>Log in</p></a>
+                    <% } %> 
                 </li>
                 <footer>
                     <p class="copyright">Copyright © <%=new Date().getFullYear()%> </p>

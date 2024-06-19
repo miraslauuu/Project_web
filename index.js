@@ -63,19 +63,68 @@ const posts_rodo = [
 ]
 app.get("/", (req, res) => {
    res.render("index.ejs", {
-       links: posts_index
+       links: posts_index,
+       userID: req.session.userID || null
    });
+});
+
+app.post("/login", async (req, res) => {
+    const { uname, psw } = req.body;
+    req.session.userID = null;
+    try {
+        let pool = await sql.connect(dbConfig);
+        let result = await pool.request()
+                        .input('UserUniversityID', sql.Int, uname)
+                        .input('UserPassword', sql.NVarChar(255), psw)
+                        .output('Result', sql.Int)
+                        .execute('UserLogInValidation');
+
+        const loginResult = result.output.Result;
+        let message;
+        if (loginResult === 0) {
+            req.session.userID = uname; // Store the user ID in the session
+            message = "Login Successful";
+        } else if (loginResult === 1) {
+            message = "User does not exist";
+        } else if (loginResult === 2) {
+            message = "Incorrect password";
+        } else {
+            message = "Unexpected result";
+        }
+        res.send(`
+            <script>
+                alert("${message}");
+                window.location.href = "/";
+            </script>
+        `);
+    } catch (err) {
+        res.send(`
+            <script>
+                alert("Failed to connect to the database: ${err.message}");
+                window.location.href = "/";
+            </script>
+        `);
+    } finally {
+        sql.close();
+    }
 });
 let posts=[];
 
 app.get("/posts", async (req, res) => {
     try {
+
+        if(req.session.userID == null){
+           // res.redirect('/');
+            //logiin();
+        }
+
         let pool = await sql.connect(dbConfig);
         let result = await pool.request().execute('GetAllPosts');
         posts = result.recordset;
         res.render("posts.ejs", {
-            links: posts_index,
+            links: posts_posts,
             posts: posts,
+            userID: req.session.userID || null
         });
     } catch (err) {
         res.status(500).send("Failed to load posts: " + err.message);
@@ -86,7 +135,8 @@ app.get("/posts", async (req, res) => {
 
 app.get("/privacy-policy", (req, res) => {
     res.render("rodo.ejs", {
-        links: posts_rodo
+        links: posts_rodo,
+        userID: req.session.userID || null
     });
 });
 
@@ -204,68 +254,21 @@ app.delete('/comment/:id', async (req, res) => {
 
 app.get("/plan", (req, res) => {
    res.render("plan.ejs", {
-       links: posts_plan
+       links: posts_plan,
+       userID: req.session.userID || null
    });
 });
 
 app.get("/map", (req, res) => {
    res.render("map.ejs", {
-       links: posts_map
+       links: posts_map,
+       userID: req.session.userID || null
    });
 });
 
 
 // here handling login procedure
 // const sql = require('mssql');
-
-function isAuthenticated(req, res, next) {   //bez zalogowania nie będą dostępne posts i plan
-    if (req.session.userID) {
-        return next();
-    } else {
-        res.redirect('/login'); 
-    }
-}
-
-app.post("/login", async (req, res) => {
-    const { uname, psw } = req.body;
-    req.session.userID = null;
-    try {
-        let pool = await sql.connect(dbConfig);
-        let result = await pool.request()
-                        .input('UserUniversityID', sql.Int, uname)
-                        .input('UserPassword', sql.NVarChar(255), psw)
-                        .output('Result', sql.Int)
-                        .execute('UserLogInValidation');
-
-        const loginResult = result.output.Result;
-        let message;
-        if (loginResult === 0) {
-            req.session.userID = uname; // Store the user ID in the session
-            message = "Login Successful";
-        } else if (loginResult === 1) {
-            message = "User does not exist";
-        } else if (loginResult === 2) {
-            message = "Incorrect password";
-        } else {
-            message = "Unexpected result";
-        }
-        res.send(`
-            <script>
-                alert("${message}");
-                window.location.href = "/";
-            </script>
-        `);
-    } catch (err) {
-        res.send(`
-            <script>
-                alert("Failed to connect to the database: ${err.message}");
-                window.location.href = "/";
-            </script>
-        `);
-    } finally {
-        sql.close();
-    }
-});
 
 // registration proces handling
 app.post("/register", async (req, res) => {
