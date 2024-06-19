@@ -44,6 +44,7 @@
     top:140px;
     left: 100px;
     z-index: 100;
+    margin-bottom: 20px;
 }
 .new_post_click{
     width: 800px;

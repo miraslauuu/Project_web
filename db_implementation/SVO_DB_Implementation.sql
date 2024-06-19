@@ -492,6 +492,7 @@ GO
 CREATE OR ALTER PROCEDURE UpdatePost
     @PostID INT,
     @UserID INT,
+	@Title nvarchar(50),
     @Content NVARCHAR(1000),
     @Date DATETIMEOFFSET,
     @Result INT OUTPUT
@@ -515,7 +516,7 @@ BEGIN
 		print @user
         IF EXISTS (SELECT 1 FROM Posts WHERE PostID = @PostID AND UserID = @user)
         BEGIN
-            UPDATE Posts SET Content = @Content, Date = @Date WHERE PostID = @PostID AND UserID = @user;
+            UPDATE Posts SET Content = @Content, Date = @Date, Title = @Title WHERE PostID = @PostID AND UserID = @user;
             SET @Result = 0; -- Success
         END
         ELSE

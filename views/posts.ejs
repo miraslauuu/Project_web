@@ -29,7 +29,7 @@
             </div>
         </div>
         <div class="comments">
-            <% posts.forEach((post) => { %>
+          <% posts.forEach((post) => { %>
             <section id="update_post_section">
                 <div class="form_container_post_update">
                     <i class="fa-solid fa-xmark form_close close_button_update"></i>
@@ -38,10 +38,14 @@
                             <h2>Update post</h2>
                             <div class="input-box first">
                                 <input type="hidden" name="_method" value="PATCH">
-                                <input type="text" name="updatedComment" required id="postTitle">
-                                <label for="updatedComment">Update post</label>
+                                <input type="text" name="updatedTitle" required id="updatedTitle" value="<%= post.Title %>">
+                                <label for="updatedTitle">Update Title</label>
                             </div>
-                            <textarea id="postContent" name="content" placeholder="Update content of your post" required></textarea>
+                            <!-- <div class="input-box first">
+                                <input type="text" name="updatedComment" required id="updatedComment" value="<%= post.Content %>">
+                                <label for="updatedComment">Update Content</label>
+                            </div> -->
+                            <textarea name="updatedComment" id="updatedComment"  placeholder="Update content of your post"  value="<%= post.Content %>" required></textarea>
                             <button type="submit" class="b">Update</button>
                         </form>
                     </div>
@@ -70,7 +74,7 @@
                     <p class="post_text"><%= post.Content %></p>
                 </div>
             </div>
-            <% }); %>
+            <% }); %>            
         </div>
     </section>
 </section>

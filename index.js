@@ -131,7 +131,7 @@ app.get("/privacy-policy", (req, res) => {
 
   app.patch('/comment/:id', async (req, res) => {
     const { id } = req.params;
-    const { updatedComment } = req.body;
+    const { updatedTitle, updatedComment } = req.body;
     const userID = req.session.userID;
     const date = new Date();
     
@@ -144,6 +144,7 @@ app.get("/privacy-policy", (req, res) => {
         const result = await pool.request()
             .input('PostID', sql.Int, id)
             .input('UserID', sql.Int, userID)
+            .input('Title', sql.NVarChar(100), updatedTitle)
             .input('Content', sql.NVarChar(1000), updatedComment)
             .input('Date', sql.DateTimeOffset, date)
             .output('Result', sql.Int)
