@@ -68,6 +68,13 @@ app.get("/", (req, res) => {
    });
 });
 
+// app.get("/login", (req, res) => {
+//     res.render("login.ejs", {
+//         links: posts_index,
+//         userID: req.session.userID || null
+//     });
+// });
+
 app.post("/login", async (req, res) => {
     const { uname, psw } = req.body;
     req.session.userID = null;
@@ -100,7 +107,7 @@ app.post("/login", async (req, res) => {
     } catch (err) {
         res.send(`
             <script>
-                alert("Failed to connect to the database: ${err.message}");
+                alert("Failed to log in: invalid id or password");
                 window.location.href = "/";
             </script>
         `);
@@ -286,18 +293,33 @@ app.post("/register", async (req, res) => {
            .execute("UserRegistration"); // Execute the stored procedure
        
        const registrationResult = result.output.Result;
+       let message;
        if (registrationResult === 0) {
-           res.send("Registration successful!");
+            message = "Registration successful!";
+           //res.send("Registration successful!");
        } else if (registrationResult === 1) {
-           res.send("User already exists");
+             message = "User already exists";
+          // res.send("User already exists");
        } else if (registrationResult === 2) {
-           res.send("Registration failed");
+        message ="Registration failed";
+          // res.send("Registration failed");
        } else {
            res.send("Unexpected error occurred");
        }
+       res.send(`
+        <script>
+            alert("${message}");
+            window.location.href = "/";
+        </script>
+    `);
 
    } catch (err) {
-       res.status(500).send("Failed to register user: " + err.message);
+    res.send(`
+        <script>
+            alert("Failed to log in: invalid id or password");
+            window.location.href = "/";
+        </script>
+    `);
    } finally {
        if (pool) {
            pool.close(); // Close the database connection
