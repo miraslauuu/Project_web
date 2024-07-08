@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PŁife</title>
+    <link rel="stylesheet" href="/styles/calendar.css">
+    <script src="https://kit.fontawesome.com/7e1322b5f9.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<header id="headd">
+    <div class="header_container container">
+        <div class="nav">
+            <a href="/" class="logo">
+                <img src="/images/logo.png" height="20px"width="57px"alt="">
+            </a>
+            <ul class="menu">
+                <% links.forEach((link)=> { %>
+                    <li>
+                        <a href="<%= link.href %>" id="<%= link.id %>" class="<%= link.class%>"><%= link.text%></a>
+                    </li>
+                <% }) %>
+            </ul>
+            <div class="nav2">
+                <% if (userID) { %>
+                    <a class="login">
+                        <img src="/images/userImage.png" height="28px" width="28px" alt=""><p><%= userID %></p>
+                    </a>
+                <% } else { %>
+                    <a class="login">
+                        <img src="/images/userImage.png" height="28px" width="28px" alt=""><p>Log in</p>
+                    </a>
+                <% } %>
+            </div>
+            <div class="toggle_btn">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+            <div class="dropdown_menu">
+                <div class="xmark_btn"> <i class="fa-solid fa-xmark"></i></div>
+                <li>
+                    <a href="/" class="active">Home</a>
+                </li>
+                <li>
+                    <a href="/posts">Posts</a>
+                </li>
+                <li>
+                    <a href="/plan">Plan</a>
+                </li>
+                <li>
+                    <a href="/map">Map</a>
+                </li>
+                <li class="login_1">
+                    <% if (userID) { %>
+                        <a class="login_dropdown"><i class="fa-regular fa-user"></i><p><%= userID %></p></a>
+                    <% } else { %>
+                        <a class="login_dropdown"><i class="fa-regular fa-user"></i><p>Log in</p></a>
+                    <% } %> 
+                </li>
+                <footer>
+                    <p class="copyright">Copyright © <%=new Date().getFullYear()%> </p>
+                </footer>
+            </div>
+        </div>
+    </div>
+</header>
+<main >

@@ -13,7 +13,6 @@ struct plifeApp: App {
         
         UITabBar.appearance().backgroundColor = UIColor(Color(hex:"#430C0F"))
         UISearchBar.appearance().backgroundColor = UIColor(Color(hex: "#5E171B"))
-
     }
     
     var body: some Scene {

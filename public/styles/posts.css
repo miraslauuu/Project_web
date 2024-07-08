@@ -1,6 +1,6 @@
 #posts{
-    height: 100%;
-    min-height:100vh;
+    /* height: 100%; */
+    /* min-height:100vh; */
     transition: filter 0.3s ease;
 }
 #me{

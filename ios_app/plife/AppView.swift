@@ -13,6 +13,8 @@ import Combine
 
 import SwiftUI
 
+
+
 struct AppView: View {
     @State private var selectedTab: String = "Main Content"
 
@@ -59,11 +61,15 @@ struct MainView: View {
             VStack {
                 switch selectedTab {
                 case "Posts":
-                    Text("Showing Posts")
+                    PostsView()
                 case "Messages":
-                    Text("Showing Messages")
+                    MessagesView()
+                    
                 case "Schedule":
-                    Text("Showing Schedule")
+                    Spacer()
+                    ScheduleView()
+                    Spacer()
+                    Spacer()
                 case "Map":
                     Spacer()
                     MapView()
@@ -72,7 +78,7 @@ struct MainView: View {
                     SearchBar()
                     Spacer()
                 default:
-                    Text("Welcome")
+                    PostsView()
                 }
             }
         }
@@ -230,5 +236,212 @@ struct PlaceholderColorModifier: ViewModifier {
 extension View {
     func placeholderColor(_ color: UIColor) -> some View {
         self.modifier(PlaceholderColorModifier(color: color))
+    }
+}
+struct Post {
+    let image: String
+    let text: String
+    let date: String
+}
+
+struct PostCard: View {
+    var post: Post
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: 15)
+            .fill(Color.white)
+            .frame(height: 200)
+            .padding()
+            .overlay(
+                VStack {
+                    HStack {
+                        Spacer()
+                        Text(post.date)
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            .padding(.trailing, 10)
+                            .padding(.top, 30)
+                            .padding(.trailing, 30)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .topTrailing)
+
+                    Spacer()
+
+                    VStack(alignment: .center){
+                        HStack {
+                            Image(post.image)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 100)
+                                .padding(.horizontal)
+                                .padding(.leading, 30)
+
+                                .cornerRadius(10)
+                            Spacer()
+                        }
+                        
+                        HStack {
+                            Text(post.text)
+                                .font(.body)
+                                .foregroundColor(.black)
+                                .padding(.leading, 30)
+                                .padding(.trailing, 30)
+
+                                .padding(.bottom, 10)
+                            Spacer()
+                        }
+                    }
+                    .padding(.bottom, 30)
+                }
+            )
+    }
+}
+
+struct PostsView: View {
+    // Sample data
+    let posts: [Post] = [
+        Post(image: "piwo", text: "Zapraszamy na flaneczki pod 3DS!!! dzis o 20:00", date: "2024-06-04"),
+        Post(image: "party", text: "Juz jutro odbedzie sie wielka integracja osiedla...", date: "2024-06-02"),
+        Post(image: "weed", text: "Zapraszamy do naszego kola naukowego pod nazwa...", date: "2024-06-03"),
+        Post(image: "comp", text: "OpenAI oglosili nowa wersje swojej...", date: "2024-06-04")
+    ]
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                ForEach(posts.indices, id: \.self) { index in
+                    PostCard(post: posts[index])
+                }
+            }
+            .padding()
+        }
+    }
+}
+
+struct MessagesCard: View {
+    var firstname: String
+    var lastname: String
+    var message: String
+    var time: String
+    var imageName: String
+
+    
+    var body: some View {
+        HStack(spacing: 7) {
+            VStack {
+                Spacer()
+                ZStack {
+                                   Circle()
+                                       .frame(width: 100, height: 100)
+                                       .foregroundColor(.white) // Set background color of circle
+                                   Image(imageName) // Use different image for each circle
+                                       .resizable()
+                                       .aspectRatio(contentMode: .fill)
+                                       .frame(width: 96, height: 96)
+                                       .clipShape(Circle())
+                                       .overlay(
+                                           Circle()
+                                               .stroke(Color.white, lineWidth: 4) //
+                                       )
+                               }
+            }
+            VStack(alignment: .leading) {
+                Text("\(firstname) \(lastname)")
+                    .padding(.horizontal, 3)
+                
+                RoundedRectangle(cornerRadius: 15)
+                    .fill(Color.white)
+                    .frame(height: 50)
+                    .overlay(
+                        HStack {
+                            Text(message)
+                                .padding(.leading, 10)
+                                .foregroundColor(.black)
+                            Spacer()
+                            Text(time)
+                                .foregroundColor(.black)
+                                .padding(.trailing, 10)
+                                .padding(.leading, 3)
+
+                        }
+                    )
+            }
+        }
+    }
+}
+
+
+struct MessagesView: View {
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                MessagesCard(firstname: "Vladyslav", lastname: "Doronchenkov", message: "Zrobiles Dante???", time: "20:38", imageName: "mirek")
+                MessagesCard(firstname: "Antoni", lastname: "Jankowski", message: "Ale duzo mam na glowie...", time: "15:24", imageName: "aj")
+                MessagesCard(firstname: "Praskouya", lastname: "Horbach", message: "Slayyyy", time: "10:23", imageName: "praska")
+                MessagesCard(firstname: "Aliaksandra", lastname:"Sutorma", message: "Idziemy na fajke???", time: "00:12", imageName: "sasha")
+                        }
+            .padding()
+        }
+    }
+}
+
+
+struct Reminder: Identifiable {
+    var id = UUID()
+    var title: String
+    var time: String
+}
+
+struct ScheduleView: View {
+    @State private var selectedDate = Date()
+    
+    // Sample reminders for demonstration
+    let reminders: [Date: [Reminder]] = [
+        // Reminders for May 31, 2024
+        Calendar.current.date(from: DateComponents(year: 2024, month: 5, day: 31))!: [
+            Reminder(title: "Dante!!!", time: "10:00 AM"),
+            Reminder(title: "AOI KOL2", time: "12:00 PM"),
+            Reminder(title: "Flaneczki", time: "5:00 PM")
+        ],
+        // Reminders for June 1, 2024
+        Calendar.current.date(from: DateComponents(year: 2024, month: 6, day: 1))!: [
+            Reminder(title: "ESSAY DUE!", time: "2:00 PM")
+        ],
+        // Reminders for June 2, 2024
+        Calendar.current.date(from: DateComponents(year: 2024, month: 6, day: 2))!: [
+            Reminder(title: "Randka", time: "7:00 PM")
+        ]
+    ]
+
+    var body: some View {
+        VStack {
+            DatePicker("", selection: $selectedDate, displayedComponents: .date)
+                .datePickerStyle(GraphicalDatePickerStyle())
+                .frame(height: 300) // Set a height for the DatePicker
+                .padding() // Add padding to create space between date picker and list
+            
+            VStack {
+                if let dateReminders = reminders[Calendar.current.startOfDay(for: selectedDate)] {
+                    List(dateReminders) { reminder in
+                        VStack(alignment: .leading) {
+                            Text(reminder.title)
+                                .font(.headline)
+                            Text(reminder.time)
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                        .listRowBackground(Color(hex:"#430C0F")) // Change background color of each row
+                    }
+                    .listStyle(PlainListStyle())
+                } else {
+                    Text("No reminders for selected date")
+                        .foregroundColor(.gray)
+                        .padding()
+                }
+            }
+            .background(Color(hex:"#430C0F")) // Change background color of the container
+            .cornerRadius(15) // Add corner radius for visual appeal
+            .padding() // Add padding to container for spacing
+        }
     }
 }

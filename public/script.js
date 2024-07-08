@@ -32,6 +32,14 @@ btnPopup.addEventListener('click',()=>{
     body_me.classList.add('blur');
     body_authors.classList.add('blur');
 });
+function logiin(){
+    form_container.classList.add('active-popup');
+    form_container.classList.remove('active');
+    loginSection.style.position="fixed";
+    loginSection.style.zIndex = "101";
+    body_me.classList.add('blur');
+    body_authors.classList.add('blur');
+}
 btnPopup2.addEventListener('click',()=>{
     form_container.classList.add('active-popup');
     form_container.classList.remove('active');
