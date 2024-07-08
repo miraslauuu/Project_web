@@ -88,28 +88,36 @@ struct LoginSheetView: View {
     @Environment(\.presentationMode) var presentationMode
 
     var body: some View {
-        VStack { 
+        VStack {
+            Spacer() // Push content to the center vertically
+
             TextField("Username", text: $username)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
+                .background(Color(hex: "#5E171B"))
+                .cornerRadius(10)
+                .padding(.horizontal, 40) // Adjust horizontal padding as needed
+            Spacer().frame(height: 20) // You can adjust the height as needed
 
             SecureField("Password", text: $password)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
+                .background(Color(hex: "#5E171B"))
+                .cornerRadius(10)
+                .padding(.horizontal, 40) // Adjust horizontal padding as needed
 
             Button(action: login) {
                 Text("Login")
                     .padding()
-                    .foregroundColor(.white)
-                    .background(Color.blue)
-                    .cornerRadius(10)
+                    .frame(width: 200, height: 50) // Increase the button size
+                    .foregroundColor(Color(hex: "#bab3b3"))
+                    .background(Color(hex: "#280709"))
+                    .cornerRadius(20) // Smoother corner radius
             }
-            .padding()
+            .padding(.top, 20)
 
-            Spacer()
+            Spacer() // Push content to the center vertically
         }
-        .edgesIgnoringSafeArea(.all)
-        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity) // Make the VStack cover the whole screen
+        .background(Color(hex: "#430C0F").edgesIgnoringSafeArea(.all)) // Set background color to cover the entire screen
         .fullScreenCover(isPresented: $isLoggedIn) {
             AppView()
         }
@@ -122,7 +130,9 @@ struct LoginSheetView: View {
     }
 }
 
-
+#Preview {
+    LoginView()
+}
 
 #Preview {
     LoginView()

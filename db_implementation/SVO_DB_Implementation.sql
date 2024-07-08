@@ -114,7 +114,7 @@ GO
 
 -- Table Posts
 
-
+DROP TABLE Posts
 IF NOT EXISTS (SELECT * FROM dbo.sysobjects WHERE ID = OBJECT_ID(N'dbo.Posts') AND OBJECTPROPERTY(ID, N'IsTable') = 1)
 BEGIN 
 	CREATE TABLE Posts(
@@ -125,8 +125,6 @@ BEGIN
 	Date DATETIMEOFFSET
 )
 END
-
-
 GO 
 
 -- Table Calendars
@@ -174,10 +172,91 @@ BEGIN
 END
 
 
+INSERT INTO Coordinates VALUES ('A2', 51.754669, 19.452695), 
+								('A3', 51.75468, 19.453577), 
+								('A4', 51.7545, 19.454544), 
+								('A5', 51.75423, 19.45483), 
+								('A6', 51.754108, 19.454196), 
+								('A8', 51.753614, 19.452959), 
+								('A9', 51.753597, 19.453082), 
+								('A10', 51.75257, 19.453196), 
+								('A11', 51.753116, 19.453483), 
+								('A12 a', 51.753687, 19.453945), 
+								('A12 b', 51.752851, 19.454834), 
+								('A13', 51.752481, 19.45377), 
+								('A14', 51.753212, 19.455113), 
+								('A15', 51.752937, 19.455075), 
+								('A16', 51.755036, 19.451494), 
+								('A17', 51.755009, 19.450656), 
+								('A18', 51.754803, 19.451423), 
+								('A19', 51.753747, 19.451902), 
+								('A20', 51.753531, 19.451461), 
+								('A21', 51.753069, 19.451734), 
+								('A22', 51.752511, 19.45255), 
+								('A23', 51.75234, 19.452647), 
+								('A24', 51.754553, 19.450705), 
+								('A26', 51.754145, 19.450323), 
+								('A27', 51.753737, 19.45099), 
+								('A28', 51.753629, 19.450985), 
+								('A30', 51.752577, 19.451327), 
+								('A32', 51.753506, 19.449718), 
+								('A33', 51.753323, 19.450505), 
+								('A34', 51.754416, 19.449899), 
+								('A36', 51.753961, 19.454723), 
+								('B1', 51.748797, 19.455334), 
+								('B2', 51.748906, 19.454685), 
+								('B3', 51.748671, 19.453061), 
+								('B4', 51.748133, 19.455868), 
+								('B5', 51.748069, 19.455428), 
+								('B6', 51.747735, 19.453142), 
+								('B7', 51.747632, 19.451906), 
+								('B8', 51.747603, 19.450868), 
+								('B9 Lodex', 51.747309, 19.453784), 
+								('B10', 51.747382, 19.455377), 
+								('B11', 51.747425, 19.455973), 
+								('B12', 51.747181, 19.455575), 
+								('B13', 51.746783, 19.45431), 
+								('B14', 51.746707, 19.454391), 
+								('B15', 51.746437, 19.455355), 
+								('B16', 51.746455, 19.453052), 
+								('B17', 51.745997, 19.454624), 
+								('B18', 51.745983, 19.455649), 
+								('B19', 51.747168, 19.4559), 
+								('B20', 51.745869, 19.456747), 
+								('B21', 51.745633, 19.455619), 
+								('B22', 51.745648, 19.454898), 
+								('B24', 51.745401, 19.451272), 
+								('B25', 51.745396, 19.451289), 
+								('B28 Zatoka Sportu', 51.74664, 19.451037), 
+								('B29', 51.744728, 19.454056), 
+								('C1', 51.744482, 19.448613), 
+								('C2', 51.744647, 19.449503), 
+								('C3 Akwarium', 51.745421, 19.45001), 
+								('C4', 51.745505, 19.449157), 
+								('C5', 51.746036, 19.45004), 
+								('C6', 51.745744, 19.449039), 
+								('C7', 51.745737, 19.448819), 
+								('C9', 51.751612, 19.447967), 
+								('C11', 51.74662, 19.450225), 
+								('C12', 51.747296, 19.45012), 
+								('C13', 51.748247, 19.449918), 
+								('C14', 51.748698, 19.449894), 
+								('C15', 51.74893, 19.449644), 
+								('C16', 51.779092, 19.494197), 
+								('C17', 51.745471, 19.450016), 
+								('C18', 51.744949, 19.449761), 
+								('D1', 51.749544, 19.461072), 
+								('D3', 51.749302, 19.461474), 
+								('D4', 51.749308, 19.46134), 
+								('D5', 51.749122, 19.461029), 
+								('E1', 51.746865, 19.45969);
+
+
 GO
 
 INSERT INTO Coordinates( Name, Latitude, Longitude) VALUES('Library', 51.745641, 19.454742)
 SELECT * FROM Coordinates
+DROP TABLE Coordinates
 
 -- Table Messages
 
@@ -425,8 +504,12 @@ BEGIN
 
     -- Insert post into the Posts table
     BEGIN TRY
+		DECLARE @user AS INT 
+		SET @user = (SELECT TOP 1 UserID FROM Users WHERE UniversityID = @UserID)
+		print @user
+		print @userId
         INSERT INTO Posts (UserID, Title, Content, Date)
-        VALUES (@UserID, @Title, @Content, @Date);
+        VALUES (@user, @Title, @Content, @Date);
         SET @Result = 0; -- Success
     END TRY
     BEGIN CATCH
@@ -442,13 +525,16 @@ BEGIN
 
     BEGIN
         SELECT 
-            PostID, 
-            UserID, 
-            Title, 
-            Content, 
-            Date 
-        FROM Posts 
-        ORDER BY Date DESC;
+            Posts.PostID, 
+            Posts.UserID, 
+            Posts.Title, 
+            Posts.Content, 
+            Posts.Date,
+            Users.FirstName,
+            Users.LastName
+        FROM Posts
+        INNER JOIN Users ON Posts.UserID = Users.UserID
+        ORDER BY Posts.Date DESC;
     END
 END
 GO
@@ -456,32 +542,38 @@ GO
 
 CREATE OR ALTER PROCEDURE DeletePost
     @PostID INT,
+    @UserID INT,
     @Result INT OUTPUT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Delete post from the Posts table
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Posts WHERE PostID = @PostID)
+		DECLARE @user AS INT 
+		SET @user = (SELECT TOP 1 UserID FROM Users WHERE UniversityID = @UserID)
+		print @user
+        IF EXISTS (SELECT 1 FROM Posts WHERE PostID = @PostID AND UserID = @user)
         BEGIN
-            DELETE FROM Posts WHERE PostID = @PostID;
+            DELETE FROM Posts WHERE PostID = @PostID AND UserID = @user;
             SET @Result = 0; -- Success
         END
         ELSE
         BEGIN
-            SET @Result = 1; -- Post does not exist
+            SET @Result = 1; -- Post does not exist or user is not the author
         END
     END TRY
     BEGIN CATCH
-        SET @Result = 2; -- Failure
+        SET @Result = 1; -- Failure
     END CATCH
 END
 GO
 
 
+
 CREATE OR ALTER PROCEDURE UpdatePost
     @PostID INT,
+    @UserID INT,
+	@Title nvarchar(50),
     @Content NVARCHAR(1000),
     @Date DATETIMEOFFSET,
     @Result INT OUTPUT
@@ -500,14 +592,17 @@ BEGIN
 
     -- Update post content in the Posts table
     BEGIN TRY
-        IF EXISTS (SELECT 1 FROM Posts WHERE PostID = @PostID)
+		DECLARE @user AS INT 
+		SET @user = (SELECT TOP 1 UserID FROM Users WHERE UniversityID = @UserID)
+		print @user
+        IF EXISTS (SELECT 1 FROM Posts WHERE PostID = @PostID AND UserID = @user)
         BEGIN
-            UPDATE Posts SET Content = @Content, Date = @Date WHERE PostID = @PostID;
+            UPDATE Posts SET Content = @Content, Date = @Date, Title = @Title WHERE PostID = @PostID AND UserID = @user;
             SET @Result = 0; -- Success
         END
         ELSE
         BEGIN
-            SET @Result = 1; -- Post does not exist
+            SET @Result = 1; -- Post does not exist or user is not the author
         END
     END TRY
     BEGIN CATCH
@@ -515,3 +610,16 @@ BEGIN
     END CATCH
 END
 GO
+
+
+DECLARE @DATE AS DATETIMEOFFSET = GETDATE()
+DECLARE @RES AS INT
+
+--EXEC AddPost 248659, 'Test', 'TIWANNAKMSks', @DATE, @RES OUTPUT
+--EXEC UpdatePost 1020, 'JAJHASHHDHF', @DATE, @RES OUTPUT
+--EXEC DeletePost 1020, @RES OUTPUT
+PRINT @RES
+
+SELECT * FROM Posts
+
+EXEC GetAllPosts

@@ -1,0 +1,324 @@
+#posts{
+    /* height: 100%; */
+    /* min-height:100vh; */
+    transition: filter 0.3s ease;
+}
+#me{
+    background: var(--background-color);
+}
+.blur {
+    filter: blur(5px);
+    z-index: 100;
+  }
+.posts-header {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(90deg,white,white,whitesmoke,whitesmoke,#9C797A,#74383B,var(--background-color));
+    padding: 10px;
+    margin-top:60px;
+    padding-top: 15px;
+    padding-left: 55px;
+    position: fixed;
+    width: 100%;
+    z-index: 102;
+}
+
+.posts-header .circle {
+    width: 30px;
+    height: 30px;
+    background-color: #8b0000;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.posts-header h1 {
+    font-size: 24px;
+    font-weight: 300;
+    color: #8b0000;
+}
+.post-container{
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    position:relative;
+    top:140px;
+    left: 100px;
+    z-index: 100;
+    margin-bottom: 20px;
+}
+.new_post_click{
+    width: 800px;
+    height: 40px;
+    background-color: white;
+    border-radius: 30px;
+    margin-left: 15px;
+}
+.post-container .fa-circle-user{
+    font-size: 40px;
+    color:white;
+}
+#postTextarea{
+    margin-left: 40px;
+    position: relative;
+    top: 7px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+}
+
+#new_post_section{
+    position:absolute;
+    height: 100vh;
+    width: 100%;
+}
+.form_container_post{
+    position: absolute;
+    min-width: 320px;
+    top: 18vh;
+    right: 38%;
+    width: 400px;
+    height: 420px;
+    /* transform: translate(-50%,-50%);
+    z-index: 101; */
+    background:transparent;
+    padding: 15px;
+    border: 2px solid rgba(255,255,255,.5);
+    border-radius: 20px;
+    box-shadow: rgba(0,0,0,0.1);
+    backdrop-filter:blur(40px);
+    overflow: hidden;
+    transform: scale(0);
+    transition: transform .5s ease,height .2s ease;
+}
+.form_container_post.active-popup{
+    transform: scale(1);
+}
+.form_container_post.active{
+    height: 540px;
+    top: 15vh;
+}
+.form_container_post .form.login_form{
+    transition: transform .18s ease;
+    transform: translateX(0);
+}
+.form_container_post.active .form.login_form{
+    transition: none;
+    transform: translateX(-400px);
+}
+.close_button{
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    z-index: 109;
+    color:var(--header-background);
+    font-size: 25px;
+    opacity: 0.7;
+    cursor: pointer;
+}
+.form_container_post h2{
+    font-size:2em;
+    margin-top: 10px;
+    color: var(--header-background);
+    text-align: center;
+}
+ textarea {
+    width: 100%;
+    background: transparent;
+    border:3px solid #74383B ;
+    outline: none;
+    font-size: 1em;
+    color: #fff;
+    height: 140px; 
+    resize: none; 
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+textarea::placeholder{
+    font-family: 'Shippori Antique',sans-serif;
+    color: #fff;
+    pointer-events: none;
+}
+/* -----------------------post text and animetion, Truncation ------------------*/
+/* styles.css */
+
+.comment {
+    z-index: 100;
+    position: relative;
+    display: flex;
+    justify-content: left;
+    flex-direction: column;
+    top: 140px;
+    left: 80px;
+    height: auto;
+    width: 90%;
+    background-color: lightgray;
+    margin-bottom: 20px;
+    padding: 10px 40px 20px 40px;
+}
+
+.posted {
+    font-size: 12px;
+    font-weight: 100;
+    color: #4D4C5C;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: 500;
+    color: #31313D;
+}
+
+.post_text {
+    font-size: 16px;
+    font-weight: 100;
+    color: #4D4C5C;
+}
+
+.post_text_box {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    -webkit-line-clamp: 3;
+    max-height: 3.9em;
+}
+
+.post_text_box.expanded {
+    -webkit-line-clamp: initial;
+    max-height: initial;
+    overflow: visible;
+}
+.fa-ellipsis-vertical{
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 109;
+    color:#31313D;
+    font-size: 20px;
+    opacity: 0.7;
+    cursor: pointer;
+}
+/* -------------------------------eclips_menu_for_posts----------------------------- */
+.container_elips{
+    position: relative;
+  display: inline-block;
+}
+.frame1{
+    width: 100px;
+    height: 80px;
+    background-color:#282828;
+    border: 2px solid rgba(255,255,255,.5);
+    border-radius: 5px;
+    position: absolute;
+    display: none;
+    top: 35px;
+    right: 15px;
+} 
+.frame1 .info{
+    font-size: 15px;
+    color: #F5F5F5;
+    cursor: pointer;
+}
+.frame1 .info{
+    height: 40px;
+} 
+.delete{
+    display: flex;
+    align-items: center;
+}
+.update{
+    display: flex;
+    align-items: center;
+}
+.delete_button{
+    border: none; 
+    font-family:'Shippori Antique',sans-serif;
+    background-color: transparent; 
+    font-size: 15px; 
+    color: #F5F5F5; 
+    cursor: pointer; 
+}
+.fa-pen{
+    margin-left: 10px;
+}
+.fa-trash{
+    margin-left: 10px;
+}
+.frame1 .info:hover{
+    background-color:#535353;
+}
+.frame1 .info button{
+    margin-left: 10px;
+}
+.frame1 .info span{
+    margin-left: 7px;
+}
+.container_elips:hover .frame1{
+    display: block;
+}
+
+/* -------------------------------Update post--------------------------------- */
+#update_post_section{
+    position:absolute;
+    height: 100vh;
+    width: 100%;
+}
+.form_container_post_update{
+    position: absolute;
+    min-width: 320px;
+    top: 18vh;
+    right: 38%;
+    width: 400px;
+    height: 420px;
+    /* transform: translate(-50%,-50%);
+    z-index: 101; */
+    background:transparent;
+    padding: 15px;
+    border: 2px solid rgba(255,255,255,.5);
+    border-radius: 20px;
+    box-shadow: rgba(0,0,0,0.1);
+    backdrop-filter:blur(40px);
+    overflow: hidden;
+    transform: scale(0);
+    transition: transform .5s ease,height .2s ease;
+}
+.close_button_update{
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    z-index: 109;
+    color:var(--header-background);
+    font-size: 25px;
+    opacity: 0.7;
+    cursor: pointer;
+}
+.form_container_post_update.active-popup{
+    transform: scale(1);
+}
+.form_container_post_update.active{
+    height: 540px;
+    top: 15vh;
+}
+.form_container_post_update .form.login_form{
+    transition: transform .18s ease;
+    transform: translateX(0);
+}
+.form_container_post_update.active .form.login_form{
+    transition: none;
+    transform: translateX(-400px);
+}
+.form_container_post_update h2{
+    font-size:2em;
+    margin-top: 10px;
+    color: var(--header-background);
+    text-align: center;
+}
+.comment input{
+    font-family: 'Shippori Antique',sans-serif;
+    color: #fff;
+    pointer-events: none;
+}
+textarea{
+    font-family: 'Shippori Antique',sans-serif;
+    color: #fff;
+}
